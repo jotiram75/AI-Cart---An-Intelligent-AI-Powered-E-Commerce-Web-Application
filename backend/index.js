@@ -28,6 +28,11 @@ app.use(
   }),
 );
 
+
+app.get("/",(req,res)=>{
+    res.send("Server is Ready")
+})
+
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/product", productRoutes);
