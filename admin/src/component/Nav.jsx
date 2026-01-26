@@ -34,12 +34,20 @@ function Nav() {
         <img src={logo} alt="" className="w-[30px]" />
         <h1 className="text-[25px] text-[black] font-sans ">AICART</h1>
       </div>
-      <button
-        className="text-[15px] hover:border-[2px] border-[#89daea] cursor-pointer bg-[#000000ca] py-[10px] px-[20px] rounded-2xl text-white "
-        onClick={logOut}
-      >
-        LogOut
-      </button>
+      <div className="flex items-center gap-4">
+        <button
+          className="text-[15px] hover:border-[2px] border-[#89daea] cursor-pointer bg-[#000000ca] py-[10px] px-[20px] rounded-2xl text-white "
+          onClick={() => window.location.href = import.meta.env.VITE_FRONTEND_URL}
+        >
+          Back to Website
+        </button>
+        <button
+          className="text-[15px] hover:border-[2px] border-[#89daea] cursor-pointer bg-[#000000ca] py-[10px] px-[20px] rounded-2xl text-white "
+          onClick={logOut}
+        >
+          LogOut
+        </button>
+      </div>
     </div>
   );
 }
