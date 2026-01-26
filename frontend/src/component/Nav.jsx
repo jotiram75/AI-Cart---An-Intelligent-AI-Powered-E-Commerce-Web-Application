@@ -13,7 +13,7 @@ import axios from "axios";
 import { authDataContext } from "../context/authContext";
 import { shopDataContext } from "../context/ShopContext";
 function Nav() {
-  let { getCurrentUser, userData } = useContext(userDataContext);
+  let { getCurrentUser, userData, setUserData } = useContext(userDataContext);
   let { serverUrl } = useContext(authDataContext);
   let { showSearch, setShowSearch, search, setSearch, getCartCount } =
     useContext(shopDataContext);
@@ -26,7 +26,7 @@ function Nav() {
         withCredentials: true,
       });
       console.log(result.data);
-
+      setUserData(null);
       navigate("/login");
     } catch (error) {
       console.log(error);
@@ -119,7 +119,7 @@ function Nav() {
       )}
 
       {showProfile && (
-        <div className="absolute w-[220px] h-[150px] bg-[#000000d7] top-[110%] right-[4%] border-[1px] border-[#aaa9a9] rounded-[10px] z-10">
+        <div className="absolute w-[220px] h-auto bg-[#000000d7] top-[110%] right-[4%] border-[1px] border-[#aaa9a9] rounded-[10px] z-10 p-2">
           <ul className="w-[100%] h-[100%] flex items-start justify-around flex-col text-[17px] py-[10px] text-[white]">
             {!userData && (
               <li
@@ -143,6 +143,15 @@ function Nav() {
                 LogOut
               </li>
             )}
+            <li
+              className="w-[100%] hover:bg-[#2f2f2f]  px-[15px] py-[10px] cursor-pointer"
+              onClick={() => {
+                window.location.href = import.meta.env.VITE_ADMIN_URL;
+                setShowProfile(false);
+              }}
+            >
+              Admin Panel
+            </li>
             <li
               className="w-[100%] hover:bg-[#2f2f2f]  px-[15px] py-[10px] cursor-pointer"
               onClick={() => {
