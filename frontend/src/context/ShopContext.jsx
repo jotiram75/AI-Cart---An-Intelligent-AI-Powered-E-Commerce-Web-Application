@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { authDataContext } from "./authContext";
+import { authDataContext } from "./AuthContext";
 import { userDataContext } from "./UserContext";
 import { toast } from "react-toastify";
 
@@ -53,7 +53,7 @@ function ShopContext({ children }) {
         await axios.post(
           serverUrl + "/api/cart/add",
           { itemId, size },
-          { withCredentials: true }
+          { withCredentials: true },
         );
         toast.success("Product Added");
       } catch (error) {
@@ -69,7 +69,7 @@ function ShopContext({ children }) {
       const result = await axios.post(
         serverUrl + "/api/cart/get",
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setCartItem(result.data);
     } catch (error) {
@@ -88,7 +88,7 @@ function ShopContext({ children }) {
         await axios.post(
           serverUrl + "/api/cart/update",
           { itemId, size, quantity },
-          { withCredentials: true }
+          { withCredentials: true },
         );
       } catch (error) {
         console.log(error);
