@@ -17,7 +17,11 @@ function UserContext({ children }) {
       console.log(result.data);
     } catch (error) {
       setUserData(null);
-      console.log(error);
+      if (error.response && error.response.status === 401) {
+        // User is not logged in, suppress error logging
+      } else {
+        console.log(error);
+      }
     }
   };
 
