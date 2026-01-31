@@ -13,15 +13,15 @@ function UserContext({ children }) {
         withCredentials: true,
       });
 
-      setUserData(result.data);
-      console.log(result.data);
-    } catch (error) {
-      setUserData(null);
-      if (error.response && error.response.status === 401) {
-        // User is not logged in, suppress error logging
+      if(result.data){
+        setUserData(result.data);
       } else {
-        console.log(error);
+        setUserData(null)
       }
+      
+    } catch (error) {
+      console.log(error);
+      setUserData(null);
     }
   };
 

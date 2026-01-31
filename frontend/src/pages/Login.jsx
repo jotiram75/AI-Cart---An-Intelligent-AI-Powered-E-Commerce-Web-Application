@@ -12,6 +12,7 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../../utils/Firebase";
 import { userDataContext } from "../context/UserContext";
 import Loading from "../component/Loading";
+import { toast } from "react-toastify";
 
 function Login() {
   let [show, setShow] = useState(false);
@@ -42,7 +43,11 @@ function Login() {
       toast.success("User Login Successful");
     } catch (error) {
       console.log(error);
-      toast.error("User Login Failed");
+      if(error.response){
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("User Login Failed");
+      }
     }
   };
   const googlelogin = async () => {

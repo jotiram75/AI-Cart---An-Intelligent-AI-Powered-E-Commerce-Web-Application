@@ -45,7 +45,11 @@ function Registration() {
       setLoading(false);
     } catch (error) {
       console.log(error);
-      toast.error("User Registration Failed");
+      if(error.response){
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("User Registration Failed");
+      }
     }
   };
 
