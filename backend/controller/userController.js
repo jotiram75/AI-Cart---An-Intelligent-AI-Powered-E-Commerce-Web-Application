@@ -3,10 +3,17 @@ import User from "../model/userModel.js"
 
 export const getCurrentUser = async (req,res) => {
     try {
+        console.log("getCurrentUser Controller Triggered. req.userId:", req.userId);
+        if(!req.userId){
+            console.log("No userId, returning null 200");
+            return res.status(200).json(null)
+        }
         let user = await User.findById(req.userId).select("-password")
         if(!user){
-           return res.status(404).json({message:"user is not found"}) 
+           console.log("UserId present but user not found in DB, returning null 200");
+           return res.status(200).json(null) 
         }
+        console.log("User found, returning user data");
         return res.status(200).json(user)
     } catch (error) {
          console.log(error)
