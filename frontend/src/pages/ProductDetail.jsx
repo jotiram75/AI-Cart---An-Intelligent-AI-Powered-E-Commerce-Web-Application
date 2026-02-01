@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { shopDataContext } from "../context/ShopContext";
+import { userDataContext } from "../context/UserContext";
 import { FaStar } from "react-icons/fa";
 import { FaStarHalfAlt } from "react-icons/fa";
 import RelatedProduct from "../component/RelatedProduct";
@@ -9,6 +10,8 @@ import Loading from "../component/Loading";
 function ProductDetail() {
   let { productId } = useParams();
   let { products, currency, addtoCart, loading } = useContext(shopDataContext);
+  let { userData } = useContext(userDataContext);
+  let navigate = useNavigate();
   let [productData, setProductData] = useState(false);
 
   const [image, setImage] = useState("");
@@ -125,7 +128,13 @@ function ProductDetail() {
             </div>
             <button
               className="text-[16px] active:bg-slate-500 cursor-pointer bg-[#495b61c9] py-[10px] px-[20px] rounded-2xl mt-[10px] border-[1px] border-[#80808049] text-white shadow-md shadow-black"
-              onClick={() => addtoCart(productData._id, size)}
+              onClick={() => {
+                if (userData) {
+                  addtoCart(productData._id, size);
+                } else {
+                  navigate("/login");
+                }
+              }}
             >
               {loading ? <Loading /> : "Add to Cart"}
             </button>
