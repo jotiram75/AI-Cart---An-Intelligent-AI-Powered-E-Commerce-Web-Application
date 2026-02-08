@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import logo from "../assets/logo.png";
+
 import { IoSearchCircleOutline } from "react-icons/io5";
 import { FaCircleUser } from "react-icons/fa6";
 import { MdOutlineShoppingCart } from "react-icons/md";
@@ -35,7 +35,7 @@ function Nav() {
   return (
     <div className="w-[100vw] h-[70px] bg-[#ecfafaec] z-10 fixed top-0 flex  items-center justify-between px-[30px] shadow-md shadow-black ">
       <div className="w-[20%] lg:w-[30%] flex items-center justify-start   gap-[10px] ">
-        <img src={logo} alt="" className="w-[30px]" />
+        <img src="/logo.png" alt="" className="w-[30px]" />
         <h1 className="text-[25px] text-[black] font-sans ">AICART</h1>
       </div>
       <div className="w-[50%] lg:w-[40%] hidden md:flex">
