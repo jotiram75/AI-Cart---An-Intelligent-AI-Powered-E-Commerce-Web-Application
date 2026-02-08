@@ -4,30 +4,46 @@ import { shopDataContext } from '../context/ShopContext'
 import Card from './Card'
 
 function BestSeller() {
-    let {products} = useContext(shopDataContext)
-    let [bestSeller,setBestSeller] = useState([])
+    const { products } = useContext(shopDataContext)
+    const [bestSeller, setBestSeller] = useState([])
 
-    useEffect(()=>{
-    let filterProduct = products.filter((item) => item.bestseller)
+    useEffect(() => {
+        const filterProduct = products.filter((item) => item.bestseller)
+        setBestSeller(filterProduct.slice(0, 5));
+    }, [products])
 
-    setBestSeller(filterProduct.slice(0,4));
-    },[products])
-  return (
-    <div>
-        <div className='h-[8%] w-[100%] text-center mt-[50px] '>
-            <Title text1={"BEST"} text2={"SELLER"}/> 
-            <p className='w-[100%] m-auto text-[13px] md:text-[20px] px-[10px] text-blue-100'>Tried, Tested, Loved – Discover Our All-Time Best Sellers.</p>
+    if (bestSeller.length === 0) return null;
+
+    return (
+        <div className='py-12 md:py-16 bg-gradient-to-b from-gray-50 to-white'>
+            <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
+                <div className='text-center mb-12'>
+                    <Title text1={"BEST"} text2={"SELLERS"} />
+                    <p className='mt-4 text-base md:text-lg text-gray-600 max-w-2xl mx-auto'>
+                        Tried, Tested, Loved – Discover Our All-Time Best Sellers
+                    </p>
+                </div>
+                
+                <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6'>
+                    {
+                        bestSeller.map((item, index) => (
+                            <Card key={index} name={item.name} id={item._id} price={item.price} image={item.image1} />
+                        ))
+                    }
+                </div>
+
+                {/* View All Button */}
+                <div className='text-center mt-12'>
+                    <button 
+                        onClick={() => window.location.href = '/collection'}
+                        className='px-8 py-3 bg-primary text-white rounded-full font-bold hover:bg-gray-900 transition-colors shadow-lg uppercase tracking-wide text-sm'
+                    >
+                        View All Products
+                    </button>
+                </div>
+            </div>
         </div>
-        <div className='w-[100%] h-[50%] mt-[30px] flex items-center justify-center flex-wrap gap-[50px]'>
-            {
-             bestSeller.map((item,index)=>(
-                <Card key={index} name={item.name} id={item._id} price={item.price} image={item.image1}/>
-             ))
-            }
-        </div>
-      
-    </div>
-  )
+    )
 }
 
 export default BestSeller

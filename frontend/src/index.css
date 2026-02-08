@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #717fe0;
+  --color-text-body: #666666;
+  --color-text-heading: #333333;
+  --color-footer-bg: #222222;
+  --font-sans: "Poppins", sans-serif;
+  --font-heading: "Montserrat", sans-serif;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-text-body);
+    background-color: white;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--color-text-heading);
+  }
+}

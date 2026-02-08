@@ -1,214 +1,262 @@
-import React, { useContext, useState } from "react";
-
-import { IoSearchCircleOutline } from "react-icons/io5";
-import { FaCircleUser } from "react-icons/fa6";
-import { MdOutlineShoppingCart } from "react-icons/md";
+import React, { useContext, useState, useEffect } from "react";
+import { IoSearchOutline, IoCartOutline, IoPersonOutline, IoMenuOutline, IoCloseOutline } from "react-icons/io5";
 import { userDataContext } from "../context/UserContext";
-import { IoSearchCircleSharp } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
-import { IoMdHome } from "react-icons/io";
-import { HiOutlineCollection } from "react-icons/hi";
-import { MdContacts } from "react-icons/md";
-import axios from "axios";
-import { authDataContext } from "../context/AuthContext";
 import { shopDataContext } from "../context/ShopContext";
+import { authDataContext } from "../context/AuthContext";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
+
 function Nav() {
-  let { getCurrentUser, userData, setUserData } = useContext(userDataContext);
-  let { serverUrl } = useContext(authDataContext);
-  let { showSearch, setShowSearch, search, setSearch, getCartCount } =
-    useContext(shopDataContext);
-  let [showProfile, setShowProfile] = useState(false);
-  let navigate = useNavigate();
+  const { userData, setUserData } = useContext(userDataContext);
+  const { serverUrl } = useContext(authDataContext);
+  const { showSearch, setShowSearch, search, setSearch, getCartCount } = useContext(shopDataContext);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Handle scroll effect for sticky navbar
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setShowMobileMenu(false);
+  }, [location.pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (showMobileMenu) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showMobileMenu]);
 
   const handleLogout = async () => {
     try {
-      const result = await axios.get(serverUrl + "/api/auth/logout", {
-        withCredentials: true,
-      });
-      console.log(result.data);
+      await axios.get(serverUrl + "/api/auth/logout", { withCredentials: true });
       setUserData(null);
+      setShowProfile(false);
       navigate("/login");
     } catch (error) {
       console.log(error);
     }
   };
+
+  const isHome = location.pathname === "/";
+
   return (
-    <div className="w-[100vw] h-[70px] bg-[#ecfafaec] z-10 fixed top-0 flex  items-center justify-between px-[30px] shadow-md shadow-black ">
-      <div className="w-[20%] lg:w-[30%] flex items-center justify-start   gap-[10px] ">
-        <img src="/logo.png" alt="" className="w-[30px]" />
-        <h1 className="text-[25px] text-[black] font-sans ">AICART</h1>
-      </div>
-      <div className="w-[50%] lg:w-[40%] hidden md:flex">
-        <ul className="flex items-center justify-center gap-[19px] text-[white] ">
-          <li
-            className="text-[15px] hover:bg-slate-500 cursor-pointer bg-[#000000c9] py-[10px] px-[20px] rounded-2xl"
-            onClick={() => navigate("/")}
-          >
-            HOME
-          </li>
-          <li
-            className="text-[15px] hover:bg-slate-500 cursor-pointer bg-[#000000c9] py-[10px] px-[20px] rounded-2xl"
-            onClick={() => navigate("/collection")}
-          >
-            COLLECTIONS
-          </li>
-          <li
-            className="text-[15px] hover:bg-slate-500 cursor-pointer bg-[#000000c9] py-[10px] px-[20px] rounded-2xl"
-            onClick={() => navigate("/about")}
-          >
-            ABOUT
-          </li>
-          <li
-            className="text-[15px] hover:bg-slate-500 cursor-pointer bg-[#000000c9] py-[10px] px-[20px] rounded-2xl"
-            onClick={() => navigate("/contact")}
-          >
-            CONTACT
-          </li>
-        </ul>
-      </div>
-      <div className="w-[30%] flex items-center justify-end gap-[20px]">
-        {!showSearch && (
-          <IoSearchCircleOutline
-            className="w-[38px] h-[38px] text-[#000000]  cursor-pointer"
-            onClick={() => {
-              setShowSearch((prev) => !prev);
-              navigate("/collection");
-            }}
-          />
-        )}
-        {showSearch && (
-          <IoSearchCircleSharp
-            className="w-[38px] h-[38px] text-[#000000]  cursor-pointer"
-            onClick={() => setShowSearch((prev) => !prev)}
-          />
-        )}
-        {!userData && (
-          <FaCircleUser
-            className="w-[29px] h-[29px] text-[#000000]  cursor-pointer"
-            onClick={() => setShowProfile((prev) => !prev)}
-          />
-        )}
-        {userData && (
-          <div
-            className="w-[30px] h-[30px] bg-[#080808] text-[white] rounded-full flex items-center justify-center cursor-pointer"
-            onClick={() => setShowProfile((prev) => !prev)}
-          >
-            {userData?.name.slice(0, 1)}
+    <>
+      {/* Main Navigation */}
+      <nav className={`fixed w-full z-50 transition-all duration-300 ease-in-out ${
+        isScrolled || !isHome ? "bg-white shadow-md" : "bg-white md:bg-transparent"
+      }`}>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            
+            {/* Logo */}
+            <div className="flex items-center gap-2 cursor-pointer z-50" onClick={() => navigate("/")}>
+              <img src="/logo.png" alt="AICart Logo" className="w-8 h-8 md:w-10 md:h-10" />
+              <h1 className={`text-xl md:text-2xl font-bold tracking-wide font-heading transition-colors ${
+                isScrolled || !isHome ? "text-gray-900" : "text-gray-900 md:text-white"
+              }`}>
+                AICART
+              </h1>
+            </div>
+
+            {/* Desktop Menu */}
+            <ul className="hidden md:flex items-center gap-8">
+              {[
+                { label: 'Home', path: '/' },
+                { label: 'Shop', path: '/collection' },
+                { label: 'About', path: '/about' },
+                { label: 'Contact', path: '/contact' }
+              ].map((item) => (
+                <li
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  className={`text-sm font-semibold uppercase tracking-wider cursor-pointer transition-colors ${
+                    location.pathname === item.path 
+                      ? 'text-primary' 
+                      : isScrolled || !isHome 
+                        ? 'text-gray-700 hover:text-primary' 
+                        : 'text-gray-900 md:text-white hover:text-primary'
+                  }`}
+                >
+                  {item.label}
+                </li>
+              ))}
+            </ul>
+
+            {/* Right Side Icons */}
+            <div className="flex items-center gap-4 md:gap-6">
+              {/* Search Icon */}
+              <button
+                onClick={() => {
+                  setShowSearch(!showSearch);
+                  navigate("/collection");
+                }}
+                className={`p-2 transition-colors ${
+                  isScrolled || !isHome ? "text-gray-700 hover:text-primary" : "text-gray-900 md:text-white hover:text-primary"
+                }`}
+                aria-label="Search"
+              >
+                <IoSearchOutline className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+
+              {/* Cart Icon */}
+              <button
+                onClick={() => navigate("/cart")}
+                className={`relative p-2 transition-colors ${
+                  isScrolled || !isHome ? "text-gray-700 hover:text-primary" : "text-gray-900 md:text-white hover:text-primary"
+                }`}
+                aria-label="Cart"
+              >
+                <IoCartOutline className="w-5 h-5 md:w-6 md:h-6" />
+                {getCartCount() > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                    {getCartCount()}
+                  </span>
+                )}
+              </button>
+
+              {/* User Profile Icon */}
+              <div className="relative">
+                {userData ? (
+                  <button
+                    onClick={() => setShowProfile(!showProfile)}
+                    className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold hover:bg-gray-800 transition-colors"
+                    aria-label="User menu"
+                  >
+                    {userData.name.charAt(0).toUpperCase()}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => navigate("/login")}
+                    className={`p-2 transition-colors ${
+                      isScrolled || !isHome ? "text-gray-700 hover:text-primary" : "text-gray-900 md:text-white hover:text-primary"
+                    }`}
+                    aria-label="Login"
+                  >
+                    <IoPersonOutline className="w-5 h-5 md:w-6 md:h-6" />
+                  </button>
+                )}
+
+                {/* Profile Dropdown */}
+                {showProfile && userData && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 animate-fade-in">
+                    <div className="px-4 py-3 text-sm text-gray-500 border-b border-gray-100 bg-gray-50">
+                      Hello, <span className="font-semibold text-gray-900">{userData.name}</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigate("/order");
+                        setShowProfile(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors"
+                    >
+                      My Orders
+                    </button>
+                    <button
+                      onClick={() => {
+                        window.location.href = import.meta.env.VITE_ADMIN_URL;
+                      }}
+                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors"
+                    >
+                      Admin Panel
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className={`md:hidden p-2 transition-colors ${
+                  isScrolled || !isHome ? "text-gray-700" : "text-gray-900 md:text-white"
+                }`}
+                aria-label="Menu"
+              >
+                {showMobileMenu ? (
+                  <IoCloseOutline className="w-6 h-6" />
+                ) : (
+                  <IoMenuOutline className="w-6 h-6" />
+                )}
+              </button>
+            </div>
           </div>
-        )}
-        <MdOutlineShoppingCart
-          className="w-[30px] h-[30px] text-[#000000]  cursor-pointer hidden md:block"
-          onClick={() => navigate("/cart")}
-        />
-        <p className="absolute w-[18px] h-[18px] items-center  justify-center bg-black px-[5px] py-[2px] text-white  rounded-full text-[9px] top-[10px] right-[23px] hidden md:block">
-          {getCartCount()}
-        </p>
-      </div>
-      {showSearch && (
-        <div className="w-[100%]  h-[80px] bg-[#d8f6f9dd] absolute top-[100%] left-0 right-0 flex items-center justify-center ">
-          <input
-            type="text"
-            className="lg:w-[50%] w-[80%] h-[60%] bg-[#233533] rounded-[30px] px-[50px] placeholder:text-white text-[white] text-[18px]"
-            placeholder="Search Here"
-            onChange={(e) => {
-              setSearch(e.target.value);
-            }}
-            value={search}
-          />
+        </div>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      {showMobileMenu && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setShowMobileMenu(false)} />
+          <div className="fixed top-16 right-0 bottom-0 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
+            <nav className="flex flex-col py-6">
+              {[
+                { label: 'Home', path: '/' },
+                { label: 'Shop', path: '/collection' },
+                { label: 'About', path: '/about' },
+                { label: 'Contact', path: '/contact' }
+              ].map((item) => (
+                <button
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  className={`text-left px-6 py-4 text-base font-semibold uppercase tracking-wider transition-colors ${
+                    location.pathname === item.path
+                      ? 'text-primary bg-gray-50'
+                      : 'text-gray-700 hover:text-primary hover:bg-gray-50'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+          </div>
         </div>
       )}
 
-      {showProfile && (
-        <div className="absolute w-[220px] h-auto bg-[#000000d7] top-[110%] right-[4%] border-[1px] border-[#aaa9a9] rounded-[10px] z-10 p-2">
-          <ul className="w-[100%] h-[100%] flex items-start justify-around flex-col text-[17px] py-[10px] text-[white]">
-            {!userData && (
-              <li
-                className="w-[100%] hover:bg-[#2f2f2f]  px-[15px] py-[10px] cursor-pointer"
-                onClick={() => {
-                  navigate("/login");
-                  setShowProfile(false);
-                }}
-              >
-                Login
-              </li>
-            )}
-            {userData && (
-              <li
-                className="w-[100%] hover:bg-[#2f2f2f]  px-[15px] py-[10px] cursor-pointer"
-                onClick={() => {
-                  handleLogout();
-                  setShowProfile(false);
-                }}
-              >
-                LogOut
-              </li>
-            )}
-            <li
-              className="w-[100%] hover:bg-[#2f2f2f]  px-[15px] py-[10px] cursor-pointer"
-              onClick={() => {
-                window.location.href = import.meta.env.VITE_ADMIN_URL;
-                setShowProfile(false);
-              }}
+      {/* Search Bar Overlay */}
+      {showSearch && (
+        <div className="fixed top-0 left-0 w-full h-16 md:h-20 bg-white z-40 flex items-center justify-center shadow-md animate-slide-down">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-4">
+            <IoSearchOutline className="text-2xl text-gray-400 flex-shrink-0" />
+            <input
+              type="text"
+              className="flex-1 h-full text-base md:text-lg text-gray-700 placeholder-gray-400 focus:outline-none bg-transparent"
+              placeholder="Search for products..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              autoFocus
+            />
+            <button
+              onClick={() => setShowSearch(false)}
+              className="text-gray-500 hover:text-red-500 text-2xl flex-shrink-0"
+              aria-label="Close search"
             >
-              Admin Panel
-            </li>
-            <li
-              className="w-[100%] hover:bg-[#2f2f2f]  px-[15px] py-[10px] cursor-pointer"
-              onClick={() => {
-                navigate("/order");
-                setShowProfile(false);
-              }}
-            >
-              Orders
-            </li>
-            <li
-              className="w-[100%] hover:bg-[#2f2f2f]  px-[15px] py-[10px] cursor-pointer"
-              onClick={() => {
-                navigate("/about");
-                setShowProfile(false);
-              }}
-            >
-              About
-            </li>
-          </ul>
+              ✕
+            </button>
+          </div>
         </div>
       )}
-      <div
-        className="w-[100vw] h-[90px] flex items-center justify-between px-[20px] text-[12px]
-         fixed bottom-0 left-0 bg-[#191818]   md:hidden"
-      >
-        <button
-          className="text-[white] flex items-center justify-center flex-col gap-[2px]"
-          onClick={() => navigate("/")}
-        >
-          <IoMdHome className="w-[28px] h-[28px] text-[white] md:hidden" /> Home
-        </button>
-        <button
-          className="text-[white] flex items-center justify-center flex-col gap-[2px]"
-          onClick={() => navigate("collection")}
-        >
-          <HiOutlineCollection className="w-[28px] h-[28px] text-[white] md:hidden" />{" "}
-          Collections
-        </button>
-        <button
-          className="text-[white] flex items-center justify-center flex-col gap-[2px] "
-          onClick={() => navigate("/contact")}
-        >
-          <MdContacts className="w-[28px] h-[28px] text-[white] md:hidden" />
-          Contact
-        </button>
-        <button
-          className="text-[white] flex items-center justify-center flex-col gap-[2px]"
-          onClick={() => navigate("/cart")}
-        >
-          <MdOutlineShoppingCart className="w-[28px] h-[28px] text-[white] md:hidden" />{" "}
-          Cart
-        </button>
-        <p className="absolute w-[18px] h-[18px] flex items-center justify-center bg-white px-[5px] py-[2px] text-black font-semibold  rounded-full text-[9px] top-[8px] right-[18px]">
-          {getCartCount()}
-        </p>
-      </div>
-    </div>
+    </>
   );
 }
 
