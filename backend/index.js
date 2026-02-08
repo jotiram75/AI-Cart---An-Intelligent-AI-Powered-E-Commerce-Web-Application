@@ -23,15 +23,15 @@ app.use(
       "http://localhost:5174",
       "https://ai-cart-admin.vercel.app",
       "https://ai-cart-frontend.vercel.app",
+      "https://aicart.vercel.app",
     ],
     credentials: true,
   }),
 );
 
-
-app.get("/",(req,res)=>{
-    res.send("Server is Ready")
-})
+app.get("/", (req, res) => {
+  res.send("Server is Ready");
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
