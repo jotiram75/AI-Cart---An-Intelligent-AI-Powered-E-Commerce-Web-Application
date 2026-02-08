@@ -1,12 +1,14 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import Title from '../component/Title'
 
 function NotFound() {
     let navigate = useNavigate()
   return (
-    <div className='w-[100vw] h-[100vh] bg-gradient-to-l  from-[#141414] to-[#0c2025] md:text-[70px] text-[30px] flex items-center justify-center text-[white] flex-col gap-[20px]'>
-      404 Page Not Found
-      <button className='bg-[white] px-[20px] py-[10px] rounded-xl text-[18px] text-[black] cursor-pointer' onClick={()=>navigate("/login")}>Login</button>
+    <div className='flex flex-col items-center justify-center min-h-[60vh] gap-4'>
+      <div className='text-6xl font-heading font-bold text-gray-800'>404</div>
+      <p className='text-xl text-gray-600'>Page Not Found</p>
+      <button className='bg-primary text-white px-8 py-3 rounded-full text-sm font-bold uppercase shadow hover:bg-black transition-colors mt-4' onClick={()=>navigate("/login")}>Login</button>
     </div>
   )
 }

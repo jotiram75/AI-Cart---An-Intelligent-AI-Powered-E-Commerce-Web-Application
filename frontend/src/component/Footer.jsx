@@ -1,72 +1,165 @@
-import React from "react";
-import logo from "../assets/logo.png";
-function Footer() {
-  return (
-    <div className="w-[100%] md:h-[36vh] h-[21vh] mb-[77px] md:mb-[0px]">
-      <div className="w-[100%] md:h-[30vh] h-[15vh]  md:mb-[0px] bg-[#dbfcfcec] flex items-center justify-center md:px-[50px] px-[5px]">
-        <div className="md:w-[30%] w-[35%] h-[100%] flex items-start justify-center flex-col gap-[5px]  ">
-          <div className="flex items-start justify-start gap-[5px] mt-[10px] md:mt-[40px]">
-            <img
-              src={logo}
-              alt=""
-              className="md:w-[40px] md:h-[40px] w-[30px] h-[30px]"
-            />
-            <p className="text-[19px] md:text-[20px] text-[black] ">AICART</p>
-          </div>
-          <p className="text-[15px] text-[#1e2223] hidden md:block">
-            AICart is your all-in-one online shopping destination, offering
-            top-quality products, unbeatable deals, and fast delivery—all backed
-            by trusted service designed to make your life easier every day.
-          </p>
-          <p className="text-[15px] text-[#1e2223] flex md:hidden">
-            Fast. Easy. Reliable. AICART Shopping
-          </p>
-        </div>
-        <div className="md:w-[25%] w-[30%] h-[100%] flex items-center justify-center flex-col text-center">
-          <div className="flex items-center justify-center gap-[5px] mt-[10px] md:mt-[40px]">
-            <p className="text-[19px] md:text-[20px] text-[#1e2223] font-sans ">
-              COMPANY
-            </p>
-          </div>
-          <ul>
-            <li className="text-[15px] text-[#1e2223] hidden md:block cursor-pointer">
-              Home
-            </li>
-            <li className="text-[15px] text-[#1e2223] cursor-pointer ">
-              About us
-            </li>
-            <li className="text-[15px] text-[#1e2223] hidden md:block cursor-pointer">
-              Delivery
-            </li>
-            <li className="text-[15px] text-[#1e2223] cursor-pointer">
-              Privacy Policy
-            </li>
-          </ul>
-        </div>
+import React from 'react';
+import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaYoutube } from 'react-icons/fa';
+import { IoMailOutline, IoCallOutline, IoLocationOutline } from 'react-icons/io5';
+import { useNavigate } from 'react-router-dom';
 
-        <div className="md:w-[25%] w-[40%]  h-[100%] flex items-center justify-center flex-col text-center ">
-          <div className="flex items-center justify-center gap-[5px] mt-[10px] md:mt-[40px]">
-            <p className="text-[19px] md:text-[20px] text-[#1e2223] font-sans ">
-              GET IN TOUCH
+function Footer() {
+  const navigate = useNavigate();
+  const currentYear = new Date().getFullYear();
+
+  const footerLinks = {
+    company: [
+      { label: 'About Us', path: '/about' },
+      { label: 'Contact', path: '/contact' },
+      { label: 'Careers', path: '#' },
+      { label: 'Blog', path: '#' }
+    ],
+    shop: [
+      { label: 'New Arrivals', path: '/collection' },
+      { label: 'Best Sellers', path: '/collection' },
+      { label: 'Sale', path: '/collection' },
+      { label: 'Gift Cards', path: '#' }
+    ],
+    help: [
+      { label: 'FAQs', path: '#' },
+      { label: 'Shipping', path: '#' },
+      { label: 'Returns', path: '#' },
+      { label: 'Size Guide', path: '#' }
+    ]
+  };
+
+  const socialLinks = [
+    { icon: FaFacebookF, url: '#', label: 'Facebook' },
+    { icon: FaTwitter, url: '#', label: 'Twitter' },
+    { icon: FaInstagram, url: '#', label: 'Instagram' },
+    { icon: FaLinkedinIn, url: '#', label: 'LinkedIn' },
+    { icon: FaYoutube, url: '#', label: 'YouTube' }
+  ];
+
+  return (
+    <footer className="bg-gray-900 text-gray-300">
+      {/* Main Footer Content */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+          
+          {/* Brand Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <img src="/logo.png" alt="AICart Logo" className="w-10 h-10" />
+              <h2 className="text-2xl font-bold text-white font-heading">AICART</h2>
+            </div>
+            <p className="text-sm leading-relaxed text-gray-400">
+              Your one-stop destination for premium fashion and lifestyle products. Quality you can trust, style you'll love.
             </p>
+            
+            {/* Contact Info */}
+            <div className="space-y-2 pt-2">
+              <a href="mailto:support@aicart.com" className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
+                <IoMailOutline className="w-4 h-4 flex-shrink-0" />
+                <span>support@aicart.com</span>
+              </a>
+              <a href="tel:+1234567890" className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
+                <IoCallOutline className="w-4 h-4 flex-shrink-0" />
+                <span>+1 (234) 567-890</span>
+              </a>
+              <div className="flex items-start gap-2 text-sm">
+                <IoLocationOutline className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>123 Fashion Street, NY 10001</span>
+              </div>
+            </div>
           </div>
-          <ul>
-            <li className="text-[15px] text-[#1e2223] ">+91-8767011846</li>
-            <li className="text-[15px] text-[#1e2223] ">contact@aicart.com</li>
-            <li className="text-[15px] text-[#1e2223] hidden md:block">
-              +1-123-456-7890
-            </li>
-            <li className="text-[15px] text-[#1e2223] hidden md:block">
-              admin@aicart.com
-            </li>
-          </ul>
+
+          {/* Company Links */}
+          <div>
+            <h3 className="text-white font-semibold text-base mb-4 uppercase tracking-wider">Company</h3>
+            <ul className="space-y-2.5">
+              {footerLinks.company.map((link, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() => navigate(link.path)}
+                    className="text-sm hover:text-primary transition-colors hover:translate-x-1 inline-block"
+                  >
+                    {link.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Shop Links */}
+          <div>
+            <h3 className="text-white font-semibold text-base mb-4 uppercase tracking-wider">Shop</h3>
+            <ul className="space-y-2.5">
+              {footerLinks.shop.map((link, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() => navigate(link.path)}
+                    className="text-sm hover:text-primary transition-colors hover:translate-x-1 inline-block"
+                  >
+                    {link.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Help Links */}
+          <div>
+            <h3 className="text-white font-semibold text-base mb-4 uppercase tracking-wider">Help</h3>
+            <ul className="space-y-2.5">
+              {footerLinks.help.map((link, index) => (
+                <li key={index}>
+                  <a
+                    href={link.path}
+                    className="text-sm hover:text-primary transition-colors hover:translate-x-1 inline-block"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
-      <div className="w-[100%] h-[1px] bg-slate-400"></div>
-      <div className="w-[100%] h-[5vh] bg-[#dbfcfcec] flex items-center justify-center">
-        Copyright 2025@aicart.com-All Rights Reserved
+
+      {/* Bottom Bar */}
+      <div className="border-t border-gray-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            {/* Copyright */}
+            <p className="text-sm text-gray-400 text-center md:text-left">
+              © {currentYear} AICart. All rights reserved.
+            </p>
+
+            {/* Social Links */}
+            <div className="flex items-center gap-4">
+              {socialLinks.map((social, index) => (
+                <a
+                  key={index}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors"
+                  aria-label={social.label}
+                >
+                  <social.icon className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
+
+            {/* Payment Methods */}
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <span>We accept:</span>
+              <div className="flex gap-2">
+                <div className="px-2 py-1 bg-gray-800 rounded text-white">VISA</div>
+                <div className="px-2 py-1 bg-gray-800 rounded text-white">MC</div>
+                <div className="px-2 py-1 bg-gray-800 rounded text-white">AMEX</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </footer>
   );
 }
 

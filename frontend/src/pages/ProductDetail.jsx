@@ -2,17 +2,16 @@ import React, { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { shopDataContext } from "../context/ShopContext";
 import { userDataContext } from "../context/UserContext";
-import { FaStar } from "react-icons/fa";
-import { FaStarHalfAlt } from "react-icons/fa";
+import { FaStar, FaStarHalfAlt } from "react-icons/fa";
 import RelatedProduct from "../component/RelatedProduct";
 import Loading from "../component/Loading";
 
 function ProductDetail() {
-  let { productId } = useParams();
-  let { products, currency, addtoCart, loading } = useContext(shopDataContext);
-  let { userData } = useContext(userDataContext);
-  let navigate = useNavigate();
-  let [productData, setProductData] = useState(false);
+  const { productId } = useParams();
+  const { products, currency, addtoCart, loading } = useContext(shopDataContext);
+  const { userData } = useContext(userDataContext);
+  const navigate = useNavigate();
+  const [productData, setProductData] = useState(false);
 
   const [image, setImage] = useState("");
   const [image1, setImage1] = useState("");
@@ -25,13 +24,11 @@ function ProductDetail() {
     products.map((item) => {
       if (item._id === productId) {
         setProductData(item);
-        console.log(productData);
         setImage1(item.image1);
         setImage2(item.image2);
         setImage3(item.image3);
         setImage4(item.image4);
         setImage(item.image1);
-
         return null;
       }
     });
@@ -40,136 +37,91 @@ function ProductDetail() {
   useEffect(() => {
     fetchProductData();
   }, [productId, products]);
+
   return productData ? (
-    <div>
-      <div className=" w-[99vw] h-[130vh] md:h-[100vh] bg-gradient-to-l from-[#141414] to-[#0c2025] flex items-center justify-start flex-col lg:flex-row gap-[20px]">
-        <div className="lg:w-[50vw] md:w-[90vw] lg:h-[90vh] h-[50vh] mt-[70px] flex items-center justify-center md:gap-[10px] gap-[30px] flex-col-reverse lg:flex-row">
-          <div className="lg:w-[20%] md:w-[80%] h-[10%] lg:h-[80%] flex items-center justify-center gap-[50px] lg:gap-[20px] lg:flex-col flex-wrap ">
-            <div className="md:w-[100px]  w-[50px] h-[50px] md:h-[110px] bg-slate-300 border-[1px] border-[#80808049] rounded-md">
-              <img
-                src={image1}
-                alt=""
-                className="w-[100%] h-[100%]  cursor-pointer rounded-md"
-                onClick={() => setImage(image1)}
-              />
-            </div>
-            <div className="md:w-[100px]  w-[50px] h-[50px] md:h-[110px] bg-slate-300 border-[1px] border-[#80808049] rounded-md">
-              <img
-                src={image2}
-                alt=""
-                className="w-[100%] h-[100%]  cursor-pointer rounded-md"
-                onClick={() => setImage(image2)}
-              />
-            </div>
-            <div className="md:w-[100px]  w-[50px] h-[50px] md:h-[110px] bg-slate-300 border-[1px] border-[#80808049] rounded-md">
-              <img
-                src={image3}
-                alt=""
-                className="w-[100%] h-[100%]  cursor-pointer rounded-md"
-                onClick={() => setImage(image3)}
-              />
-            </div>
-            <div className="md:w-[100px]  w-[50px] h-[50px] md:h-[110px] bg-slate-300 border-[1px] border-[#80808049] rounded-md">
-              <img
-                src={image4}
-                alt=""
-                className="w-[100%] h-[100%]  cursor-pointer rounded-md"
-                onClick={() => setImage(image4)}
-              />
-            </div>
+    <div className="border-t border-gray-200 pt-10 transition-opacity ease-in duration-500 opacity-100 container mx-auto px-4 pb-20">
+      
+      {/* Product Data */}
+      <div className="flex gap-12 sm:gap-12 flex-col sm:flex-row">
+        
+        {/* Product Images */}
+        <div className="flex-1 flex flex-col-reverse gap-3 sm:flex-row">
+          <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-scroll justify-between sm:justify-start sm:w-[18.7%] w-full">
+              {image1 && <img onClick={() => setImage(image1)} src={image1} className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer object-cover border border-gray-200 hover:border-primary" alt="" />}
+              {image2 && <img onClick={() => setImage(image2)} src={image2} className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer object-cover border border-gray-200 hover:border-primary" alt="" />}
+              {image3 && <img onClick={() => setImage(image3)} src={image3} className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer object-cover border border-gray-200 hover:border-primary" alt="" />}
+              {image4 && <img onClick={() => setImage(image4)} src={image4} className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer object-cover border border-gray-200 hover:border-primary" alt="" />}
           </div>
-          <div className="lg:w-[60%] w-[80%] lg:h-[78%] h-[70%] border-[1px] border-[#80808049] rounded-md  overflow-hidden">
-            <img
-              src={image}
-              alt=""
-              className=" w-[100%] lg:h-[100%] h-[100%] text-[30px] text-white  text-center rounded-md object-fill "
-            />
+          <div className="w-full sm:w-[80%]">
+              <img className="w-full h-auto object-cover border border-gray-200" src={image} alt="" />
           </div>
         </div>
 
-        <div className="lg:w-[50vw] w-[100vw] lg:h-[75vh] h-[40vh] lg:mt-[80px] flex items-start justify-start flex-col py-[20px] px-[30px] md:pb-[20px] md:pl-[20px] lg:pl-[0px] lg:px-[0px] lg:py-[0px] gap-[10px]">
-          <h1 className="text-[40px] font-semibold text-[aliceblue]">
-            {productData.name.toUpperCase()}
-          </h1>
-          <div className="flex items-center gap-1 ">
-            <FaStar className="text-[20px] fill-[#FFD700]" />
-            <FaStar className="text-[20px] fill-[#FFD700]" />
-            <FaStar className="text-[20px] fill-[#FFD700]" />
-            <FaStar className="text-[20px] fill-[#FFD700]" />
-            <FaStarHalfAlt className="text-[20px] fill-[#FFD700]" />
-            <p className="text-[18px] font-semibold pl-[5px] text-[white]">
-              (124)
-            </p>
-          </div>
-          <p className="text-[30px] font-semibold pl-[5px] text-[white]">
-            {currency} {productData.price}
-          </p>
-
-          <p className=" w-[80%] md:w-[60%] text-[20px] font-semibold pl-[5px] text-[white]">
-            {productData.description} and Stylish, breathable cotton shirt with
-            a modern slim fit. Easy to wash, super comfortable, and designed for
-            effortless style.
-          </p>
-          <div className="flex flex-col gap-[10px] my-[10px] ">
-            <p className="text-[25px] font-semibold pl-[5px] text-[white]">
-              Select Size
-            </p>
-            <div className="flex gap-2">
-              {productData.sizes.map((item, index) => (
-                <button
-                  key={index}
-                  className={`border py-2 px-4 bg-slate-300 rounded-md 
-                  ${item === size ? "bg-black text-[#2f97f1] text-[20px]" : ""}`}
-                  onClick={() => setSize(item)}
-                >
-                  {item}
-                </button>
-              ))}
+        {/* Product Info */}
+        <div className="flex-1">
+            <h1 className="font-medium text-2xl mt-2 text-gray-800 font-heading">{productData.name}</h1>
+            
+            <div className="flex items-center gap-1 mt-2">
+                <FaStar className="text-yellow-400 text-sm" />
+                <FaStar className="text-yellow-400 text-sm" />
+                <FaStar className="text-yellow-400 text-sm" />
+                <FaStar className="text-yellow-400 text-sm" />
+                <FaStarHalfAlt className="text-yellow-400 text-sm" />
+                <p className="pl-2 text-gray-500 text-sm">(122)</p>
             </div>
-            <button
-              className="text-[16px] active:bg-slate-500 cursor-pointer bg-[#495b61c9] py-[10px] px-[20px] rounded-2xl mt-[10px] border-[1px] border-[#80808049] text-white shadow-md shadow-black"
-              onClick={() => {
-                if (userData) {
-                  addtoCart(productData._id, size);
-                } else {
-                  navigate("/login");
-                }
-              }}
+
+            <p className="mt-5 text-3xl font-medium text-gray-900">{currency}{productData.price}</p>
+            <p className="mt-5 text-gray-500 md:w-4/5">{productData.description}</p>
+
+            <div className="flex flex-col gap-4 my-8">
+                <p className="text-gray-700 font-medium">Select Size</p>
+                <div className="flex gap-2">
+                    {productData.sizes.map((item, index) => (
+                        <button 
+                            key={index} 
+                            onClick={() => setSize(item)}
+                            className={`border py-2 px-4 bg-gray-100 rounded-sm hover:bg-gray-200 transition-colors ${item === size ? 'border-primary bg-blue-50 text-primary' : 'border-gray-200'}`}
+                        >
+                            {item}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <button 
+                onClick={() => userData ? addtoCart(productData._id, size) : navigate('/login')}
+                className="bg-primary text-white px-8 py-3 text-sm active:bg-gray-700 font-bold uppercase rounded-full shadow-md hover:shadow-lg transition-all"
             >
-              {loading ? <Loading /> : "Add to Cart"}
+                {loading ? <Loading /> : "Add to Cart"}
             </button>
-          </div>
-          <div className="w-[90%] h-[1px] bg-slate-700"></div>
-          <div className="w-[80%] text-[16px] text-white ">
-            <p>100% Original Product.</p>
-            <p>Cash on delivery is available on this product</p>
-            <p>East return and exchange policy within 7 days</p>
-          </div>
+
+            <hr className="mt-8 sm:w-4/5 border-gray-300" />
+            
+            <div className="text-sm text-gray-500 mt-5 flex flex-col gap-1">
+                <p>100% Original product.</p>
+                <p>Cash on delivery is available on this product.</p>
+                <p>Easy return and exchange policy within 7 days.</p>
+            </div>
         </div>
       </div>
 
-      <div className="w-[100%] min-h-[70vh] bg-gradient-to-l from-[#141414] to-[#0c2025] flex items-start justify-start flex-col  overflow-x-hidden">
-        <div className="flex px-[20px] mt-[90px] lg:ml-[80px] ml-[0px]  lg:mt-[0px]  ">
-          <p className="border px-5 py-3 text-sm text-white">Description</p>
-          <p className="border px-5 py-3 text-sm text-white">Reviews (124)</p>
-        </div>
-
-        <div className="w-[80%] md:h-[150px] h-[220px] bg-[#3336397c] border text-white text-[13px] md:text-[15px] lg:text-[20px] px-[10px] md:px-[30px] lg:ml-[100px] ml-[20px]">
-          <p className="w-[95%] h-[90%] flex items-center justify-center ">
-            Upgrade your wardrobe with this stylish slim-fit cotton shirt,
-            available now on AiCart. Crafted from breathable, high-quality
-            fabric, it offers all-day comfort and effortless style. Easy to
-            maintain and perfect for any setting, this shirt is a must-have
-            essential for those who value both fashion and function.
-          </p>
-        </div>
-
-        <RelatedProduct
-          category={productData.category}
-          subCategory={productData.subCategory}
-          currentProductId={productData._id}
-        />
+      {/* Description & Reviews */}
+      <div className="mt-20">
+          <div className="flex border-b border-gray-300">
+             <p className="border-b-2 border-primary py-3 px-5 text-sm font-bold text-gray-800">Description</p>
+             <p className="py-3 px-5 text-sm text-gray-500">Reviews (122)</p>
+          </div>
+          <div className="flex flex-col gap-4 border border-t-0 border-gray-300 p-6 text-sm text-gray-500 bg-gray-50">
+              <p>An e-commerce website is an online platform that facilitates the buying and selling of products or services over the internet. It serves as a virtual marketplace where businesses and individuals can showcase their products, interact with customers, and conduct transactions without the need for a physical presence. E-commerce websites have gained immense popularity due to their convenience, accessibility, and the global reach they offer.</p>
+              <p>E-commerce websites typically display products or services along with detailed descriptions, images, prices, and any available variations (e.g., sizes, colors). Each product usually has its own dedicated page with relevant information.</p>
+          </div>
       </div>
+
+      {/* Related Products */}
+      <div className="mt-20">
+         <RelatedProduct category={productData.category} subCategory={productData.subCategory} currentProductId={productData._id} />
+      </div>
+
     </div>
   ) : (
     <div className="opacity-0"></div>

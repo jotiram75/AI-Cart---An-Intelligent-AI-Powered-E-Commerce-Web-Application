@@ -1,17 +1,48 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { IoMailOutline } from 'react-icons/io5'
 
 function NewLetterBox() {
-    const handleSubmit = ()=>{
+    const [email, setEmail] = useState('')
+    
+    const handleSubmit = (e) => {
         e.preventDefault()
+        // Handle newsletter subscription
+        console.log('Newsletter subscription:', email)
+        setEmail('')
     }
+    
   return (
-    <div className='w-[100%] h-[40vh]  bg-gradient-to-l from-[#141414] to-[#0c2025] flex items-center justify-start gap-[10px] flex-col'>
-      <p className='md:text-[30px] text-[20px] text-[#a5faf7] font-semibold px-[20px]'>Subscribe now & get 20% off</p>
-      <p className='md:text-[18px] text-[14px] text-center text-blue-100 font-semibold px-[20px]'>Subscribe now and enjoy exclusive savings, special deals, and early access to new collections.</p>
-      <form action="" onSubmit={handleSubmit} className='w-[100%] h-[30%] md:h-[50%] flex items-center justify-center mt-[20px] gap-[20px] px-[20px]'>
-        <input type="text" placeholder='Enter Your Email' className='placeholder:text-[black] bg-slate-300 w-[600px] max-w-[60%] h-[40px]  px-[20px] rounded-lg shadow-sm shadow-black' required />
-        <button type='submit' className='text-[15px] md:text-[16px] px-[10px] md:px-[30px] py-[12px] md:py-[10px]  hover:bg-slate-500 cursor-pointer bg-[#2e3030c9]  text-white flex items-center justify-center gap-[20px]  border-[1px] border-[#80808049]  rounded-lg shadow-sm shadow-black'>Subscribe</button>
-      </form>
+    <div className='bg-gradient-to-r from-primary to-purple-600 py-16 md:py-20'>
+      <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
+        <div className='max-w-3xl mx-auto text-center text-white'>
+          <h2 className='text-3xl md:text-4xl font-bold font-heading mb-4'>
+            Subscribe & Get 20% Off
+          </h2>
+          <p className='text-base md:text-lg mb-8 text-white/90'>
+            Subscribe now and enjoy exclusive savings, special deals, and early access to new collections.
+          </p>
+          
+          <form onSubmit={handleSubmit} className='flex flex-col sm:flex-row gap-4 max-w-xl mx-auto'>
+            <div className='flex-1 relative'>
+              <IoMailOutline className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5' />
+              <input 
+                type="email" 
+                placeholder='Enter your email address' 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className='w-full h-12 md:h-14 pl-12 pr-4 rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white shadow-lg'
+                required 
+              />
+            </div>
+            <button 
+              type='submit' 
+              className='h-12 md:h-14 px-8 md:px-10 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-full transition-colors shadow-lg uppercase tracking-wide text-sm'
+            >
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   )
 }
