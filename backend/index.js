@@ -3,12 +3,13 @@ import dotenv from "dotenv";
 import connectDb from "./config/db.js";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
-dotenv.config();
 import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+
+dotenv.config();
 
 let port = process.env.PORT || 6000;
 
@@ -16,6 +17,8 @@ let app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+
+// CORS Configuration - Allow multiple frontend domains
 app.use(
   cors({
     origin: [
@@ -24,6 +27,8 @@ app.use(
       "https://ai-cart-admin.vercel.app",
       "https://ai-cart-frontend.vercel.app",
       "https://aicart.vercel.app",
+      "https://aicart1.vercel.app",  // Add your deployed frontend
+      "https://aicart-admin.vercel.app",  // Add your deployed admin
     ],
     credentials: true,
   }),
