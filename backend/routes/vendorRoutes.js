@@ -4,7 +4,7 @@ import vendorAuth from '../middleware/vendorAuth.js';
 
 const vendorRouter = express.Router();
 
-vendorRouter.post('/register', registerVendor);
+vendorRouter.post('/registration', registerVendor);
 vendorRouter.post('/login', loginVendor);
 vendorRouter.get('/profile', vendorAuth, getVendorProfile);
 

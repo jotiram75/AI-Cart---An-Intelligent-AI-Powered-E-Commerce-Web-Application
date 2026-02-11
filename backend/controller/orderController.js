@@ -1,5 +1,6 @@
 import Order from "../model/orderModel.js";
 import User from "../model/userModel.js";
+import Product from "../model/productModel.js";
 import Razorpay from 'razorpay'
 import dotenv from 'dotenv'
 dotenv.config()
@@ -11,8 +12,15 @@ export const placeOrder = async (req,res) => {
      try {
          const {items , amount , address} = req.body;
          const userId = req.userId;
+
+         // Fetch vendorId for each item
+         const enrichedItems = await Promise.all(items.map(async (item) => {
+             const product = await Product.findById(item._id);
+             return { ...item, vendorId: product.vendorId };
+         }));
+
          const orderData = {
-            items,
+            items: enrichedItems,
             amount,
             userId,
             address,
@@ -40,6 +48,12 @@ export const placeOrderRazorpay = async (req,res) => {
          const {items , amount , address} = req.body;
          const userId = req.userId;
 
+         // Fetch vendorId for each item
+         const enrichedItems = await Promise.all(items.map(async (item) => {
+            const product = await Product.findById(item._id);
+            return { ...item, vendorId: product.vendorId };
+        }));
+
          const key_id = process.env.RAZORPAY_KEY_ID?.replace(/'/g, "").trim();
          const key_secret = process.env.RAZORPAY_KEY_SECRET?.replace(/'/g, "").trim();
 
@@ -55,7 +69,7 @@ export const placeOrderRazorpay = async (req,res) => {
          })
 
          const orderData = {
-            items,
+            items: enrichedItems,
             amount,
             userId,
             address,
@@ -147,6 +161,18 @@ export const allOrders = async (req,res) => {
         
     }
     
+}
+
+export const vendorOrders = async (req,res) => {
+    try {
+        const vendorId = req.vendorId || req.body.vendorId;
+        const orders = await Order.find({})
+        const vendorOrders = orders.filter(order => order.items.some(item => item.vendorId === vendorId))
+        res.status(200).json(vendorOrders)
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({message:"vendorOrders error"})
+    }
 }
     
 export const updateStatus = async (req,res) => {

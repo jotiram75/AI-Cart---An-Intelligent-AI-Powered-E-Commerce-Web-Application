@@ -5,6 +5,7 @@ import { useContext } from "react";
 import { authDataContext } from "../context/AuthContext";
 import { useEffect } from "react";
 import axios from "axios";
+import { adminDataContext } from "../context/AdminContext";
 import { IoGridOutline, IoReceiptOutline, IoTrendingUpOutline } from "react-icons/io5";
 
 function Home() {
@@ -13,30 +14,32 @@ function Home() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const { serverUrl } = useContext(authDataContext);
+  const { token, adminData } = useContext(adminDataContext);
 
   const fetchCounts = async () => {
     try {
       const products = await axios.get(
-        `${serverUrl}/api/product/list`,
-        {},
-        { withCredentials: true }
+        `${serverUrl}/api/product/vendor-list`,
+        { headers: { token } }
       );
-      setTotalProducts(products.data.length);
+      setTotalProducts(products.data.products?.length || 0);
 
       const orders = await axios.post(
-        `${serverUrl}/api/order/list`,
+        `${serverUrl}/api/order/vendor-orders`,
         {},
-        { withCredentials: true }
+        { headers: { token } }
       );
-      setTotalOrders(orders.data.length);
+      setTotalOrders(orders.data.length || 0);
     } catch (err) {
       console.error("Failed to fetch counts", err);
     }
   };
 
   useEffect(() => {
-    fetchCounts();
-  }, []);
+    if (token) {
+        fetchCounts();
+    }
+  }, [token]);
 
   const stats = [
     {
@@ -76,10 +79,10 @@ function Home() {
         <div className="bg-gradient-to-r from-primary to-purple-600 text-white py-12 md:py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-3xl md:text-4xl font-bold font-heading mb-2">
-              Welcome to Admin Dashboard
+              Welcome, {adminData?.name || "Vendor"}
             </h1>
             <p className="text-white/90 text-base md:text-lg">
-              Manage your products, orders, and inventory
+              Manage {adminData?.storeName || "your store"}'s products and orders
             </p>
           </div>
         </div>

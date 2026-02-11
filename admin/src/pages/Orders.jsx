@@ -4,6 +4,7 @@ import Sidebar from '../component/Sidebar'
 import { useState } from 'react'
 import { useContext } from 'react'
 import { authDataContext } from '../context/AuthContext'
+import { adminDataContext } from '../context/AdminContext'
 import axios from 'axios'
 import { useEffect } from 'react'
 import { IoReceiptOutline, IoCheckmarkCircle, IoCashOutline, IoCalendarOutline } from "react-icons/io5";
@@ -13,10 +14,13 @@ function Orders() {
   let [orders,setOrders] = useState([])
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   let {serverUrl} = useContext(authDataContext)
+  let {token} = useContext(adminDataContext)
 
   const fetchAllOrders =async () => {
     try {
-      const result = await axios.post(serverUrl + '/api/order/list' , {} ,{withCredentials:true})
+      const result = await axios.post(serverUrl + '/api/order/vendor-orders' , {} ,{
+          headers: { token }
+      })
       setOrders(result.data.reverse())
     } catch (error) {
       console.log(error)
@@ -25,7 +29,9 @@ function Orders() {
 
   const statusHandler = async (e , orderId) => {
     try {
-      const result = await axios.post(serverUrl + '/api/order/status' , {orderId,status:e.target.value},{withCredentials:true})
+      const result = await axios.post(serverUrl + '/api/order/status' , {orderId,status:e.target.value},{
+          headers: { token }
+      })
       if(result.data){
         toast.success("Order status updated")
         await fetchAllOrders()
@@ -37,8 +43,10 @@ function Orders() {
   }
 
   useEffect(()=>{
-    fetchAllOrders()
-  },[])
+    if (token) {
+        fetchAllOrders()
+    }
+  },[token])
 
   const getStatusColor = (status) => {
     const colors = {

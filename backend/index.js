@@ -8,6 +8,7 @@ import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import vendorRoutes from "./routes/vendorRoutes.js";
 
 dotenv.config();
 
@@ -38,11 +39,19 @@ app.get("/", (req, res) => {
   res.send("Server is Ready");
 });
 
+console.log("Mounting Vendor Routes at /api/vendor");
+app.use("/api/vendor", vendorRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
+
+// Catch-all 404 handler for debugging
+app.use((req, res) => {
+    console.log(`404 Not Found: ${req.method} ${req.url}`);
+    res.status(404).send(`404 Not Found: ${req.method} ${req.url}`);
+});
 
 connectDb();
 
