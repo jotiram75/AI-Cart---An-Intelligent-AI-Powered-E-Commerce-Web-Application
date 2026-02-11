@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { IoSearchOutline, IoCartOutline, IoPersonOutline, IoMenuOutline, IoCloseOutline } from "react-icons/io5";
+import { IoSearchOutline, IoCartOutline, IoPersonOutline, IoMenuOutline, IoCloseOutline, IoChevronDownOutline, IoHeartOutline } from "react-icons/io5";
 import { userDataContext } from "../context/UserContext";
 import { shopDataContext } from "../context/ShopContext";
 import { authDataContext } from "../context/AuthContext";
@@ -9,7 +9,7 @@ import axios from "axios";
 function Nav() {
   const { userData, setUserData } = useContext(userDataContext);
   const { serverUrl } = useContext(authDataContext);
-  const { showSearch, setShowSearch, search, setSearch, getCartCount } = useContext(shopDataContext);
+  const { showSearch, setShowSearch, search, setSearch, getCartCount, wishlistItems } = useContext(shopDataContext);
   const [showProfile, setShowProfile] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -114,6 +114,22 @@ function Nav() {
                 <IoSearchOutline className="w-5 h-5 md:w-6 md:h-6" />
               </button>
 
+              {/* Wishlist Icon */}
+              <button
+                onClick={() => navigate("/wishlist")}
+                className={`relative p-2 transition-colors ${
+                  isScrolled || !isHome ? "text-gray-700 hover:text-primary" : "text-gray-900 md:text-white hover:text-primary"
+                }`}
+                aria-label="Wishlist"
+              >
+                <IoHeartOutline className="w-5 h-5 md:w-6 md:h-6" />
+                {wishlistItems.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
+                    {wishlistItems.length}
+                  </span>
+                )}
+              </button>
+
               {/* Cart Icon */}
               <button
                 onClick={() => navigate("/cart")}
@@ -135,10 +151,19 @@ function Nav() {
                 {userData ? (
                   <button
                     onClick={() => setShowProfile(!showProfile)}
-                    className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold hover:bg-gray-800 transition-colors"
+                    className="flex items-center gap-1 group"
                     aria-label="User menu"
                   >
-                    {userData.name.charAt(0).toUpperCase()}
+                    <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold group-hover:bg-opacity-90 transition-all">
+                      {userData.name.charAt(0).toUpperCase()}
+                    </div>
+                    <IoChevronDownOutline 
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        showProfile ? "rotate-180" : ""
+                      } ${
+                        isScrolled || !isHome ? "text-gray-700" : "text-gray-900 md:text-white"
+                      }`} 
+                    />
                   </button>
                 ) : (
                   <button
