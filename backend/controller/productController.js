@@ -87,3 +87,49 @@ export const removeProduct = async (req,res) => {
     }
     
 }
+
+export const updateProduct = async (req, res) => {
+    try {
+        const vendorId = req.vendorId || req.body.vendorId;
+        const { id, name, description, price, category, subCategory, sizes, bestseller } = req.body;
+
+        if (!id) {
+            return res.status(400).json({ success: false, message: "Product ID is missing from request body" });
+        }
+
+        const product = await Product.findById(id);
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: `Product with ID ${id} not found in database` });
+        }
+
+        if (product.vendorId !== vendorId) {
+            return res.status(401).json({ success: false, message: `Unauthorized: Product belongs to vendor ${product.vendorId}, but you are vendor ${vendorId}` });
+        }
+
+        const updateData = {
+            name,
+            description,
+            price: Number(price),
+            category,
+            subCategory,
+            sizes: JSON.parse(sizes),
+            bestseller: bestseller === "true" ? true : false,
+        };
+
+        if (req.files) {
+            if (req.files.image1) updateData.image1 = await uploadOnCloudinary(req.files.image1[0].path);
+            if (req.files.image2) updateData.image2 = await uploadOnCloudinary(req.files.image2[0].path);
+            if (req.files.image3) updateData.image3 = await uploadOnCloudinary(req.files.image3[0].path);
+            if (req.files.image4) updateData.image4 = await uploadOnCloudinary(req.files.image4[0].path);
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
+
+        return res.status(200).json({ success: true, product: updatedProduct });
+
+    } catch (error) {
+        console.log("UpdateProduct error", error);
+        return res.status(500).json({ success: false, message: `UpdateProduct error ${error}` });
+    }
+};

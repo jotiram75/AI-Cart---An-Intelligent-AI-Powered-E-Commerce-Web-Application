@@ -4,7 +4,8 @@ import Sidebar from '../component/Sidebar'
 import { authDataContext } from '../context/AuthContext'
 import { adminDataContext } from '../context/AdminContext'
 import axios from 'axios'
-import { IoTrashOutline, IoSearchOutline } from 'react-icons/io5'
+import { useNavigate } from 'react-router-dom'
+import { IoTrashOutline, IoSearchOutline, IoPencilOutline } from 'react-icons/io5'
 import { toast } from 'react-toastify'
 
 function Lists() {
@@ -13,6 +14,7 @@ function Lists() {
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   let { serverUrl } = useContext(authDataContext)
   let { token } = useContext(adminDataContext)
+  const navigate = useNavigate()
 
   const fetchList = async () => {
     try {
@@ -117,14 +119,24 @@ function Lists() {
                       </div>
                     </div>
 
-                    {/* Delete Button */}
-                    <button
-                      onClick={()=>removeList(item._id)}
-                      className='p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0'
-                      title='Delete product'
-                    >
-                      <IoTrashOutline className='w-5 h-5' />
-                    </button>
+                    {/* Action Buttons */}
+                    <div className='flex items-center gap-2'>
+                      <button
+                        onClick={() => navigate(`/edit/${item._id}`)}
+                        className='p-3 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0'
+                        title='Edit product'
+                      >
+                        <IoPencilOutline className='w-5 h-5' />
+                      </button>
+                      
+                      <button
+                        onClick={() => removeList(item._id)}
+                        className='p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0'
+                        title='Delete product'
+                      >
+                        <IoTrashOutline className='w-5 h-5' />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))

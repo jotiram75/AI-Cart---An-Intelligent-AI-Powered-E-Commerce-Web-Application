@@ -147,19 +147,36 @@ function ProductDetail() {
                   <button className="text-primary text-xs font-bold hover:underline">Size Guide</button>
                 </div>
                 <div className="flex flex-wrap gap-4">
-                    {productData.sizes.map((item, index) => (
-                        <button 
-                            key={index} 
-                            onClick={() => setSize(item)}
-                            className={`min-w-[4rem] h-12 flex items-center justify-center rounded-xl font-bold border-2 transition-all duration-300 relative overflow-hidden ${
-                              item === size 
-                                ? 'border-primary bg-primary text-white shadow-xl scale-105' 
-                                : 'border-gray-100 bg-gray-50 text-gray-600 hover:border-gray-200 hover:bg-white'
-                            }`}
-                        >
-                            {item}
-                        </button>
-                    ))}
+                    {(() => {
+                        let sizesArray = [];
+                        if (Array.isArray(productData.sizes)) {
+                            sizesArray = productData.sizes;
+                        } else if (typeof productData.sizes === 'string') {
+                            try {
+                                sizesArray = JSON.parse(productData.sizes);
+                            } catch (e) {
+                                sizesArray = [];
+                            }
+                        }
+
+                        return sizesArray && sizesArray.length > 0 ? (
+                            sizesArray.map((item, index) => (
+                                <button 
+                                    key={index} 
+                                    onClick={() => setSize(item)}
+                                    className={`min-w-[4rem] h-12 flex items-center justify-center rounded-xl font-bold border-2 transition-all duration-300 relative overflow-hidden ${
+                                      item === size 
+                                        ? 'border-primary bg-primary text-white shadow-xl scale-105' 
+                                        : 'border-gray-100 bg-gray-50 text-gray-600 hover:border-gray-200 hover:bg-white'
+                                    }`}
+                                >
+                                    {item}
+                                </button>
+                            ))
+                        ) : (
+                            <p className="text-gray-400 text-sm font-medium italic">No sizes available for this product</p>
+                        );
+                    })()}
                 </div>
             </div>
 

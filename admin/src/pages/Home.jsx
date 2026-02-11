@@ -76,35 +76,38 @@ function Home() {
       {/* Main Content */}
       <div className="md:ml-64 pt-[70px]">
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-primary to-purple-600 text-white py-12 md:py-16">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-3xl md:text-4xl font-bold font-heading mb-2">
-              Welcome, {adminData?.name || "Vendor"}
+        <div className="bg-blue-600 text-white py-16 md:py-20 relative overflow-hidden">
+          {/* Subtle patterns/glows */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/4"></div>
+          
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white font-heading mb-4 tracking-tight">
+              Welcome, <span className="">{adminData?.name || "Vendor"}</span>
             </h1>
-            <p className="text-white/90 text-base md:text-lg">
-              Manage {adminData?.storeName || "your store"}'s products and orders
+            <p className="text-white/80 text-lg md:text-xl max-w-2xl font-medium">
+              Manage <span className="text-white font-bold">{adminData?.storeName || "your store"}'s</span> products and orders
             </p>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-8 mb-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-12 mb-12 relative z-20">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow"
+                className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300 group border border-gray-100"
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-600 text-sm font-medium mb-1">
+                    <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-1">
                       {stat.label}
                     </p>
                     <p className="text-3xl font-bold text-gray-900">
                       {stat.value}
                     </p>
                   </div>
-                  <div className={`w-14 h-14 ${stat.color} rounded-lg flex items-center justify-center`}>
+                  <div className={`w-14 h-14 ${stat.color} rounded-lg flex items-center justify-center transition-transform duration-300`}>
                     <stat.icon className="w-7 h-7 text-white" />
                   </div>
                 </div>
@@ -114,39 +117,30 @@ function Home() {
         </div>
 
         {/* Quick Actions */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 font-heading">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+          <div className="bg-white rounded-xl shadow-md p-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-8 font-heading">
               Quick Actions
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <button
-                onClick={() => window.location.href = '/add'}
-                className="flex items-center justify-center gap-3 p-6 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition-all group"
-              >
-                <IoGridOutline className="w-8 h-8 text-gray-600 group-hover:text-primary" />
-                <span className="font-semibold text-gray-700 group-hover:text-primary">
-                  Add New Product
-                </span>
-              </button>
-              <button
-                onClick={() => window.location.href = '/lists'}
-                className="flex items-center justify-center gap-3 p-6 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition-all group"
-              >
-                <IoGridOutline className="w-8 h-8 text-gray-600 group-hover:text-primary" />
-                <span className="font-semibold text-gray-700 group-hover:text-primary">
-                  View All Products
-                </span>
-              </button>
-              <button
-                onClick={() => window.location.href = '/orders'}
-                className="flex items-center justify-center gap-3 p-6 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition-all group"
-              >
-                <IoReceiptOutline className="w-8 h-8 text-gray-600 group-hover:text-primary" />
-                <span className="font-semibold text-gray-700 group-hover:text-primary">
-                  Manage Orders
-                </span>
-              </button>
+              {[
+                { icon: IoGridOutline, label: 'Add New Product', path: '/add' },
+                { icon: IoGridOutline, label: 'View All Products', path: '/lists' },
+                { icon: IoReceiptOutline, label: 'Manage Orders', path: '/orders' }
+              ].map((action, index) => (
+                <button
+                  key={index}
+                  onClick={() => window.location.href = action.path}
+                  className="flex items-center gap-4 p-5 border border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition-all group"
+                >
+                  <div className="w-12 h-12 bg-white border border-gray-100 rounded-lg shadow-sm flex items-center justify-center group-hover:border-primary transition-colors">
+                    <action.icon className="w-6 h-6 text-gray-500 group-hover:text-primary transition-colors" />
+                  </div>
+                  <span className="font-semibold text-gray-700 group-hover:text-primary">
+                    {action.label}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
