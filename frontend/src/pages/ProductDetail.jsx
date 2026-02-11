@@ -3,8 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { shopDataContext } from "../context/ShopContext";
 import { userDataContext } from "../context/UserContext";
 import { FaStar, FaStarHalfAlt } from "react-icons/fa";
+import { IoChevronBackOutline, IoChevronForwardOutline, IoCartOutline, IoCheckmarkCircleOutline } from "react-icons/io5";
 import RelatedProduct from "../component/RelatedProduct";
 import Loading from "../component/Loading";
+import Title from "../component/Title";
 
 function ProductDetail() {
   const { productId } = useParams();
@@ -13,74 +15,147 @@ function ProductDetail() {
   const navigate = useNavigate();
   const [productData, setProductData] = useState(false);
 
-  const [image, setImage] = useState("");
-  const [image1, setImage1] = useState("");
-  const [image2, setImage2] = useState("");
-  const [image3, setImage3] = useState("");
-  const [image4, setImage4] = useState("");
+  const [mainImage, setMainImage] = useState("");
+  const [images, setImages] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [size, setSize] = useState("");
 
   const fetchProductData = async () => {
-    products.map((item) => {
-      if (item._id === productId) {
-        setProductData(item);
-        setImage1(item.image1);
-        setImage2(item.image2);
-        setImage3(item.image3);
-        setImage4(item.image4);
-        setImage(item.image1);
-        return null;
-      }
-    });
+    const foundProduct = products.find((item) => item._id === productId);
+    if (foundProduct) {
+      setProductData(foundProduct);
+      const productImages = [
+        foundProduct.image1,
+        foundProduct.image2,
+        foundProduct.image3,
+        foundProduct.image4
+      ].filter(Boolean);
+      setImages(productImages);
+      setMainImage(foundProduct.image1);
+      setCurrentIndex(0);
+    }
   };
 
   useEffect(() => {
     fetchProductData();
   }, [productId, products]);
 
+  const handleNextImage = () => {
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+    setMainImage(images[(currentIndex + 1) % images.length]);
+  };
+
+  const handlePrevImage = () => {
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+    setMainImage(images[(currentIndex - 1 + images.length) % images.length]);
+  };
+
   return productData ? (
-    <div className="border-t border-gray-200 pt-10 transition-opacity ease-in duration-500 opacity-100 container mx-auto px-4 pb-20">
+    <div className="pt-24 md:pt-32 transition-all duration-500 container mx-auto px-4 pb-20 animate-fade-in">
       
       {/* Product Data */}
-      <div className="flex gap-12 sm:gap-12 flex-col sm:flex-row">
+      <div className="flex gap-12 lg:gap-20 flex-col md:flex-row items-start">
         
-        {/* Product Images */}
-        <div className="flex-1 flex flex-col-reverse gap-3 sm:flex-row">
-          <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-scroll justify-between sm:justify-start sm:w-[18.7%] w-full">
-              {image1 && <img onClick={() => setImage(image1)} src={image1} className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer object-cover border border-gray-200 hover:border-primary" alt="" />}
-              {image2 && <img onClick={() => setImage(image2)} src={image2} className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer object-cover border border-gray-200 hover:border-primary" alt="" />}
-              {image3 && <img onClick={() => setImage(image3)} src={image3} className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer object-cover border border-gray-200 hover:border-primary" alt="" />}
-              {image4 && <img onClick={() => setImage(image4)} src={image4} className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer object-cover border border-gray-200 hover:border-primary" alt="" />}
+        {/* Product Images Gallery */}
+        <div className="flex-1 flex flex-col-reverse md:flex-row gap-4 w-full">
+          <div className="flex md:flex-col overflow-x-auto md:overflow-y-auto gap-3 md:w-24 w-full scrollbar-hide">
+              {images.map((img, index) => (
+                <div 
+                  key={index}
+                  onClick={() => {
+                    setMainImage(img);
+                    setCurrentIndex(index);
+                  }}
+                  className={`relative flex-shrink-0 w-20 md:w-full aspect-square rounded-xl overflow-hidden cursor-pointer border-2 transition-all duration-200 ${
+                    img === mainImage ? "border-primary shadow-md scale-95" : "border-transparent hover:border-gray-300"
+                  }`}
+                >
+                  <img src={img} className="w-full h-full object-cover" alt={`Thumbnail ${index + 1}`} />
+                </div>
+              ))}
           </div>
-          <div className="w-full sm:w-[80%]">
-              <img className="w-full h-auto object-cover border border-gray-200" src={image} alt="" />
+
+          <div className="relative flex-1 max-h-[70vh] aspect-[4/5] rounded-3xl overflow-hidden bg-gray-50 border border-gray-100 group shadow-sm flex items-center justify-center">
+              <img 
+                src={mainImage} 
+                className="w-full h-full object-contain transition-transform duration-700 md:group-hover:scale-105" 
+                alt={productData.name} 
+              />
+              
+              {/* Navigation Arrows */}
+              {images.length > 1 && (
+                <>
+                  <button 
+                    onClick={handlePrevImage}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-white"
+                  >
+                    <IoChevronBackOutline className="w-6 h-6" />
+                  </button>
+                  <button 
+                    onClick={handleNextImage}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-white"
+                  >
+                    <IoChevronForwardOutline className="w-6 h-6" />
+                  </button>
+                </>
+              )}
+
+              {/* Counter */}
+              <div className="absolute bottom-6 right-6 px-4 py-2 bg-black/50 backdrop-blur-md text-white text-xs font-bold rounded-full tracking-widest uppercase">
+                {currentIndex + 1} / {images.length}
+              </div>
           </div>
         </div>
 
         {/* Product Info */}
-        <div className="flex-1">
-            <h1 className="font-medium text-2xl mt-2 text-gray-800 font-heading">{productData.name}</h1>
+        <div className="flex-1 w-full lg:max-w-xl">
+            <div className="space-y-2">
+              <span className="text-primary text-xs font-bold uppercase tracking-[0.2em]">New Arrival</span>
+              <h1 className="font-bold text-3xl md:text-4xl text-gray-900 leading-tight tracking-tight">
+                {productData.name}
+              </h1>
+            </div>
             
-            <div className="flex items-center gap-1 mt-2">
-                <FaStar className="text-yellow-400 text-sm" />
-                <FaStar className="text-yellow-400 text-sm" />
-                <FaStar className="text-yellow-400 text-sm" />
-                <FaStar className="text-yellow-400 text-sm" />
-                <FaStarHalfAlt className="text-yellow-400 text-sm" />
-                <p className="pl-2 text-gray-500 text-sm">(122)</p>
+            <div className="flex items-center gap-4 mt-6">
+                <div className="flex items-center gap-1 text-yellow-400">
+                    <FaStar className="text-sm" />
+                    <FaStar className="text-sm" />
+                    <FaStar className="text-sm" />
+                    <FaStar className="text-sm" />
+                    <FaStarHalfAlt className="text-sm" />
+                </div>
+                <span className="text-gray-400 text-sm font-medium">|</span>
+                <p className="text-gray-500 text-sm font-medium hover:text-gray-900 cursor-pointer transition-colors">122 Customer Reviews</p>
             </div>
 
-            <p className="mt-5 text-3xl font-medium text-gray-900">{currency}{productData.price}</p>
-            <p className="mt-5 text-gray-500 md:w-4/5">{productData.description}</p>
+            <div className="mt-8 flex items-baseline gap-4">
+              <p className="text-4xl font-bold text-gray-900 tracking-tighter">
+                {currency}{productData.price}
+              </p>
+              <p className="text-lg text-gray-400 line-through font-medium">
+                {currency}{(productData.price * 1.2).toFixed(0)}
+              </p>
+            </div>
 
-            <div className="flex flex-col gap-4 my-8">
-                <p className="text-gray-700 font-medium">Select Size</p>
-                <div className="flex gap-2">
+            <p className="mt-8 text-gray-600 leading-relaxed text-lg border-l-4 border-primary pl-6 py-2">
+              {productData.description}
+            </p>
+
+            <div className="flex flex-col gap-6 my-10">
+                <div className="flex items-center justify-between">
+                  <p className="text-gray-900 font-bold uppercase tracking-widest text-xs">Select Size</p>
+                  <button className="text-primary text-xs font-bold hover:underline">Size Guide</button>
+                </div>
+                <div className="flex flex-wrap gap-4">
                     {productData.sizes.map((item, index) => (
                         <button 
                             key={index} 
                             onClick={() => setSize(item)}
-                            className={`border py-2 px-4 bg-gray-100 rounded-sm hover:bg-gray-200 transition-colors ${item === size ? 'border-primary bg-blue-50 text-primary' : 'border-gray-200'}`}
+                            className={`min-w-[4rem] h-12 flex items-center justify-center rounded-xl font-bold border-2 transition-all duration-300 relative overflow-hidden ${
+                              item === size 
+                                ? 'border-primary bg-primary text-white shadow-xl scale-105' 
+                                : 'border-gray-100 bg-gray-50 text-gray-600 hover:border-gray-200 hover:bg-white'
+                            }`}
                         >
                             {item}
                         </button>
@@ -88,43 +163,66 @@ function ProductDetail() {
                 </div>
             </div>
 
-            <button 
-                onClick={() => userData ? addtoCart(productData._id, size) : navigate('/login')}
-                className="bg-primary text-white px-8 py-3 text-sm active:bg-gray-700 font-bold uppercase rounded-full shadow-md hover:shadow-lg transition-all"
-            >
-                {loading ? <Loading /> : "Add to Cart"}
-            </button>
+            <div className="flex flex-col sm:flex-row gap-4 mt-10">
+              <button 
+                  onClick={() => userData ? addtoCart(productData._id, size) : navigate('/login')}
+                  className="flex-1 bg-gray-900 text-white px-8 py-5 text-sm font-black uppercase tracking-widest rounded-2xl shadow-2xl hover:bg-primary transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+              >
+                  {loading ? <Loading /> : (
+                    <>
+                      <IoCartOutline className="text-xl" />
+                      Add to Cart
+                    </>
+                  )}
+              </button>
+            </div>
 
-            <hr className="mt-8 sm:w-4/5 border-gray-300" />
-            
-            <div className="text-sm text-gray-500 mt-5 flex flex-col gap-1">
-                <p>100% Original product.</p>
-                <p>Cash on delivery is available on this product.</p>
-                <p>Easy return and exchange policy within 7 days.</p>
+            <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
+               {[
+                 "100% Original Product",
+                 "Cash on Delivery Available",
+                 "Easy 7-day Returns",
+                 "Free Global Shipping"
+               ].map((text, i) => (
+                 <div key={i} className="flex items-center gap-3 text-sm text-gray-500 font-medium bg-gray-50/50 p-4 rounded-xl border border-gray-100/50">
+                   <IoCheckmarkCircleOutline className="text-primary text-xl" />
+                   {text}
+                 </div>
+               ))}
             </div>
         </div>
       </div>
 
-      {/* Description & Reviews */}
-      <div className="mt-20">
-          <div className="flex border-b border-gray-300">
-             <p className="border-b-2 border-primary py-3 px-5 text-sm font-bold text-gray-800">Description</p>
-             <p className="py-3 px-5 text-sm text-gray-500">Reviews (122)</p>
+      {/* Description & Reviews Section */}
+      <div className="mt-32">
+          <div className="flex border-b border-gray-100 gap-8 mb-8">
+             <button className="relative py-4 text-sm font-black uppercase tracking-widest text-gray-900">
+               Description
+               <div className="absolute bottom-0 left-0 w-full h-1 bg-primary rounded-full"></div>
+             </button>
+             <button className="py-4 text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors">
+               Reviews (122)
+             </button>
           </div>
-          <div className="flex flex-col gap-4 border border-t-0 border-gray-300 p-6 text-sm text-gray-500 bg-gray-50">
-              <p>An e-commerce website is an online platform that facilitates the buying and selling of products or services over the internet. It serves as a virtual marketplace where businesses and individuals can showcase their products, interact with customers, and conduct transactions without the need for a physical presence. E-commerce websites have gained immense popularity due to their convenience, accessibility, and the global reach they offer.</p>
-              <p>E-commerce websites typically display products or services along with detailed descriptions, images, prices, and any available variations (e.g., sizes, colors). Each product usually has its own dedicated page with relevant information.</p>
+          <div className="bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-sm leading-relaxed text-gray-600 text-lg space-y-6">
+              <p>Experience the perfect blend of style, comfort, and durability with this premium {productData.name}. Meticulously crafted using high-quality materials, this piece is designed to elevate your everyday ensemble while providing unmatched versatility.</p>
+              <p>Whether you're heading to a casual brunch or an evening gathering, its timeless silhouette and attention to detail ensure you make a sophisticated statement. Our commitment to quality means every stitch is placed with precision, promising a product that lasts as long as your memories of it.</p>
           </div>
       </div>
 
       {/* Related Products */}
-      <div className="mt-20">
-         <RelatedProduct category={productData.category} subCategory={productData.subCategory} currentProductId={productData._id} />
+      <div className="mt-32">
+         <Title text1={'YOU MIGHT'} text2={'ALSO LIKE'} />
+         <div className="mt-10">
+          <RelatedProduct category={productData.category} subCategory={productData.subCategory} currentProductId={productData._id} />
+         </div>
       </div>
 
     </div>
   ) : (
-    <div className="opacity-0"></div>
+    <div className="h-screen flex items-center justify-center">
+      <Loading />
+    </div>
   );
 }
 
