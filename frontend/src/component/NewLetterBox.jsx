@@ -24,13 +24,13 @@ function NewLetterBox() {
           
           <form onSubmit={handleSubmit} className='flex flex-col sm:flex-row gap-4 max-w-xl mx-auto'>
             <div className='flex-1 relative'>
-              <IoMailOutline className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5' />
+              <IoMailOutline className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5 z-10' />
               <input 
                 type="email" 
                 placeholder='Enter your email address' 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className='w-full h-12 md:h-14 pl-12 pr-4 rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white shadow-lg'
+                className='w-full h-12 md:h-14 pl-12 pr-4 rounded-full bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-300 shadow-lg border-none'
                 required 
               />
             </div>

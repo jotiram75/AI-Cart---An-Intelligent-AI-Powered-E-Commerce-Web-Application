@@ -16,12 +16,21 @@ import Order from './pages/Order'
 import { ToastContainer } from 'react-toastify';
 import NotFound from './pages/NotFound'
 import Ai from './component/Ai'
+import ScrollToTop from './component/ScrollToTop'
+import Careers from './pages/Careers'
+import Blog from './pages/Blog'
+import GiftCards from './pages/GiftCards'
+import Faq from './pages/Faq'
+import Shipping from './pages/Shipping'
+import Returns from './pages/Returns'
+import SizeGuide from './pages/SizeGuide'
 function App() {
 let {userData} = useContext(userDataContext)
 let location = useLocation()
   
   return (
     <>
+    <ScrollToTop/>
     <ToastContainer />
     <Nav/>
       <Routes>
@@ -54,6 +63,14 @@ let location = useLocation()
         element={userData ? <PlaceOrder/> : <Navigate to="/login" state={{from: location.pathname}} /> }/>
          <Route path='/order' 
         element={userData ? <Order/> : <Navigate to="/login" state={{from: location.pathname}} /> }/>
+
+        <Route path='/careers' element={<Careers />} />
+        <Route path='/blog' element={<Blog />} />
+        <Route path='/gift-cards' element={<GiftCards />} />
+        <Route path='/faqs' element={<Faq />} />
+        <Route path='/shipping' element={<Shipping />} />
+        <Route path='/returns' element={<Returns />} />
+        <Route path='/size-guide' element={<SizeGuide />} />
 
         <Route path='*' element={<NotFound/>}/>
       </Routes>

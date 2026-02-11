@@ -8,7 +8,7 @@ import back4 from "../assets/back4.jpg";
 const heroData = [
   {
     image: back2,
-    subtitle: "Men Collection 2026",
+    subtitle: "Women Collection 2026",
     title: "NEW ARRIVALS",
     buttonText: "SHOP NOW",
   },
