@@ -235,24 +235,26 @@ function Nav() {
 
       {/* Search Bar Overlay */}
       {showSearch && (
-        <div className="fixed top-0 left-0 w-full h-16 md:h-20 bg-white z-40 flex items-center justify-center shadow-md animate-slide-down">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-4">
-            <IoSearchOutline className="text-2xl text-gray-400 flex-shrink-0" />
-            <input
-              type="text"
-              className="flex-1 h-full text-base md:text-lg text-gray-700 placeholder-gray-400 focus:outline-none bg-transparent"
-              placeholder="Search for products..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              autoFocus
-            />
-            <button
-              onClick={() => setShowSearch(false)}
-              className="text-gray-500 hover:text-red-500 text-2xl flex-shrink-0"
-              aria-label="Close search"
-            >
-              ✕
-            </button>
+        <div className="fixed top-16 md:top-20 left-0 w-full bg-white z-40 shadow-md animate-slide-down py-3">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-3 bg-gray-50 rounded-full px-5 py-2 mx-auto max-w-3xl border border-gray-100 shadow-inner">
+              <IoSearchOutline className="text-xl text-gray-500 flex-shrink-0" />
+              <input
+                type="text"
+                className="flex-1 text-base text-gray-700 placeholder-gray-400 focus:outline-none bg-transparent"
+                placeholder="Search for products..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                autoFocus
+              />
+              <button
+                onClick={() => setShowSearch(false)}
+                className="text-gray-400 hover:text-red-500 text-xl flex-shrink-0 transition-colors"
+                aria-label="Close search"
+              >
+                <IoCloseOutline className="w-6 h-6" />
+              </button>
+            </div>
           </div>
         </div>
       )}

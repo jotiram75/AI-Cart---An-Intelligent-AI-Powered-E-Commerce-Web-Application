@@ -47,6 +47,10 @@ const productSchema = new mongoose.Schema({
     },
     bestseller:{
         type:Boolean
+    },
+    vendorId:{
+        type:String,
+        required:true
     }
 
 },{timestamps:true})

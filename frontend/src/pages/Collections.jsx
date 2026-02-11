@@ -260,9 +260,11 @@ function Collections() {
                     {/* Products Grid */}
                     <div className='flex-1'>
                         {filterProduct.length > 0 ? (
-                            <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6'>
+                            <div className='flex flex-wrap justify-center gap-4 md:gap-6'>
                                 {filterProduct.map((item, index) => (
-                                    <Card key={index} name={item.name} id={item._id} price={item.price} image={item.image1} />
+                                    <div key={index} className='w-[46%] sm:w-52 md:w-56 lg:w-60 flex-shrink-0'>
+                                        <Card name={item.name} id={item._id} price={item.price} image={item.image1} />
+                                    </div>
                                 ))}
                             </div>
                         ) : (

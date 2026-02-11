@@ -1,7 +1,17 @@
-import React from 'react';
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaYoutube } from 'react-icons/fa';
-import { IoMailOutline, IoCallOutline, IoLocationOutline } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import {
+  FaFacebookF,
+  FaTwitter,
+  FaInstagram,
+  FaLinkedinIn,
+  FaYoutube,
+} from "react-icons/fa";
+import {
+  IoMailOutline,
+  IoCallOutline,
+  IoLocationOutline,
+} from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 function Footer() {
   const navigate = useNavigate();
@@ -9,70 +19,80 @@ function Footer() {
 
   const footerLinks = {
     company: [
-      { label: 'About Us', path: '/about' },
-      { label: 'Contact', path: '/contact' },
-      { label: 'Careers', path: '#' },
-      { label: 'Blog', path: '#' }
+      { label: "About Us", path: "/about" },
+      { label: "Contact", path: "/contact" },
+      { label: "Careers", path: "/careers" },
+      { label: "Blog", path: "/blog" },
     ],
     shop: [
-      { label: 'New Arrivals', path: '/collection' },
-      { label: 'Best Sellers', path: '/collection' },
-      { label: 'Sale', path: '/collection' },
-      { label: 'Gift Cards', path: '#' }
+      { label: "New Arrivals", path: "/collection" },
+      { label: "Best Sellers", path: "/collection" },
+      { label: "Sale", path: "/collection" },
+      { label: "Gift Cards", path: "/gift-cards" },
     ],
     help: [
-      { label: 'FAQs', path: '#' },
-      { label: 'Shipping', path: '#' },
-      { label: 'Returns', path: '#' },
-      { label: 'Size Guide', path: '#' }
-    ]
+      { label: "FAQs", path: "/faqs" },
+      { label: "Shipping", path: "/shipping" },
+      { label: "Returns", path: "/returns" },
+      { label: "Size Guide", path: "/size-guide" },
+    ],
   };
 
   const socialLinks = [
-    { icon: FaFacebookF, url: '#', label: 'Facebook' },
-    { icon: FaTwitter, url: '#', label: 'Twitter' },
-    { icon: FaInstagram, url: '#', label: 'Instagram' },
-    { icon: FaLinkedinIn, url: '#', label: 'LinkedIn' },
-    { icon: FaYoutube, url: '#', label: 'YouTube' }
+    { icon: FaFacebookF, url: "#", label: "Facebook" },
+    { icon: FaTwitter, url: "#", label: "Twitter" },
+    { icon: FaInstagram, url: "#", label: "Instagram" },
+    { icon: FaLinkedinIn, url: "#", label: "LinkedIn" },
+    { icon: FaYoutube, url: "#", label: "YouTube" },
   ];
 
   return (
     <footer className="bg-gray-900 text-gray-300">
       {/* Main Footer Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 text-center">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-          
           {/* Brand Section */}
-          <div className="space-y-4">
+          <div className="space-y-4 flex flex-col items-center">
             <div className="flex items-center gap-2">
               <img src="/logo.png" alt="AICart Logo" className="w-10 h-10" />
-              <h2 className="text-2xl font-bold text-white font-heading">AICART</h2>
+              <h2 className="text-2xl font-bold text-white font-heading">
+                AICART
+              </h2>
             </div>
-            <p className="text-sm leading-relaxed text-gray-400">
-              Your one-stop destination for premium fashion and lifestyle products. Quality you can trust, style you'll love.
+            <p className="text-sm leading-relaxed text-gray-400 max-w-xs mx-auto">
+              Your one-stop destination for premium fashion and lifestyle
+              products. Quality you can trust, style you'll love.
             </p>
-            
+
             {/* Contact Info */}
-            <div className="space-y-2 pt-2">
-              <a href="mailto:support@aicart.com" className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
+            <div className="space-y-2 pt-2 flex flex-col items-center">
+              <a
+                href="mailto:support@aicart.com"
+                className="flex items-center gap-2 text-sm hover:text-primary transition-colors"
+              >
                 <IoMailOutline className="w-4 h-4 flex-shrink-0" />
                 <span>support@aicart.com</span>
               </a>
-              <a href="tel:+1234567890" className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
+              <a
+                href="tel:+1234567890"
+                className="flex items-center gap-2 text-sm hover:text-primary transition-colors"
+              >
                 <IoCallOutline className="w-4 h-4 flex-shrink-0" />
-                <span>+1 (234) 567-890</span>
+                <span>+91 8767011846</span>
               </a>
-              <div className="flex items-start gap-2 text-sm">
-                <IoLocationOutline className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <div className="flex items-center gap-2 text-sm">
+                <IoLocationOutline className="w-4 h-4 flex-shrink-0" />
                 <span>123 Fashion Street, NY 10001</span>
               </div>
             </div>
           </div>
 
           {/* Company Links */}
-          <div>
-            <h3 className="text-white font-semibold text-base mb-4 uppercase tracking-wider">Company</h3>
-            <ul className="space-y-2.5">
+          <div className="flex flex-col items-center">
+            <h3 className="text-white font-semibold text-base mb-4 uppercase tracking-wider">
+              Company
+            </h3>
+            <ul className="space-y-2.5 flex flex-col items-center">
               {footerLinks.company.map((link, index) => (
                 <li key={index}>
                   <button
@@ -87,9 +107,11 @@ function Footer() {
           </div>
 
           {/* Shop Links */}
-          <div>
-            <h3 className="text-white font-semibold text-base mb-4 uppercase tracking-wider">Shop</h3>
-            <ul className="space-y-2.5">
+          <div className="flex flex-col items-center">
+            <h3 className="text-white font-semibold text-base mb-4 uppercase tracking-wider">
+              Shop
+            </h3>
+            <ul className="space-y-2.5 flex flex-col items-center">
               {footerLinks.shop.map((link, index) => (
                 <li key={index}>
                   <button
@@ -104,17 +126,19 @@ function Footer() {
           </div>
 
           {/* Help Links */}
-          <div>
-            <h3 className="text-white font-semibold text-base mb-4 uppercase tracking-wider">Help</h3>
-            <ul className="space-y-2.5">
+          <div className="flex flex-col items-center">
+            <h3 className="text-white font-semibold text-base mb-4 uppercase tracking-wider">
+              Help
+            </h3>
+            <ul className="space-y-2.5 flex flex-col items-center">
               {footerLinks.help.map((link, index) => (
                 <li key={index}>
-                  <a
-                    href={link.path}
+                  <button
+                    onClick={() => navigate(link.path)}
                     className="text-sm hover:text-primary transition-colors hover:translate-x-1 inline-block"
                   >
                     {link.label}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -127,12 +151,12 @@ function Footer() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Copyright */}
-            <p className="text-sm text-gray-400 text-center md:text-left">
+            <p className="text-sm text-gray-400 text-center md:text-left w-full md:w-auto">
               © {currentYear} AICart. All rights reserved.
             </p>
 
             {/* Social Links */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center gap-4 w-full md:w-auto">
               {socialLinks.map((social, index) => (
                 <a
                   key={index}
@@ -148,12 +172,18 @@ function Footer() {
             </div>
 
             {/* Payment Methods */}
-            <div className="flex items-center gap-2 text-xs text-gray-400">
+            <div className="flex items-center justify-center gap-2 text-xs text-gray-400 w-full md:w-auto">
               <span>We accept:</span>
               <div className="flex gap-2">
-                <div className="px-2 py-1 bg-gray-800 rounded text-white">VISA</div>
-                <div className="px-2 py-1 bg-gray-800 rounded text-white">MC</div>
-                <div className="px-2 py-1 bg-gray-800 rounded text-white">AMEX</div>
+                <div className="px-2 py-1 bg-gray-800 rounded text-white">
+                  VISA
+                </div>
+                <div className="px-2 py-1 bg-gray-800 rounded text-white">
+                  MC
+                </div>
+                <div className="px-2 py-1 bg-gray-800 rounded text-white">
+                  AMEX
+                </div>
               </div>
             </div>
           </div>
