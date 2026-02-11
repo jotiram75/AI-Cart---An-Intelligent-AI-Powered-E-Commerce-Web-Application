@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import Nav from '../component/Nav'
 import Sidebar from '../component/Sidebar'
 import { authDataContext } from '../context/AuthContext'
+import { adminDataContext } from '../context/AdminContext'
 import axios from 'axios'
 import { IoTrashOutline, IoSearchOutline } from 'react-icons/io5'
 import { toast } from 'react-toastify'
@@ -10,12 +11,17 @@ function Lists() {
   let [list ,setList] = useState([])
   let [searchTerm, setSearchTerm] = useState('')
   const [showMobileMenu, setShowMobileMenu] = useState(false)
-  let {serverUrl} = useContext(authDataContext)
+  let { serverUrl } = useContext(authDataContext)
+  let { token } = useContext(adminDataContext)
 
   const fetchList = async () => {
     try {
-      let result = await axios.get(serverUrl + "/api/product/list" )
-      setList(result.data)
+      let result = await axios.get(serverUrl + "/api/product/vendor-list", {
+          headers: { token }
+      })
+      if (result.data.success) {
+          setList(result.data.products)
+      }
       console.log(result.data)
     } catch (error) {
       console.log(error)
@@ -24,7 +30,9 @@ function Lists() {
 
   const removeList = async (id) => {
     try {
-      let result = await axios.post(`${serverUrl}/api/product/remove/${id}`,{},{withCredentials:true})
+      let result = await axios.post(`${serverUrl}/api/product/remove`, { id }, {
+          headers: { token }
+      })
       if(result.data){
         toast.success("Product removed successfully")
         fetchList()

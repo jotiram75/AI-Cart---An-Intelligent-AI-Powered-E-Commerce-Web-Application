@@ -12,24 +12,21 @@ import {
   IoCloseOutline,
 } from "react-icons/io5";
 
-function Nav() {
+function Nav({ showMobileMenu, setShowMobileMenu }) {
   let navigate = useNavigate();
   let { serverUrl } = useContext(authDataContext);
-  let { getAdmin } = useContext(adminDataContext);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  let { adminData, setToken, setAdminData } = useContext(adminDataContext);
 
   const logOut = async () => {
     try {
-      const result = await axios.get(serverUrl + "/api/auth/logout", {
-        withCredentials: true,
-      });
-      console.log(result.data);
-      toast.success("LogOut Successfully");
-      getAdmin();
+      setToken("");
+      setAdminData(null);
+      localStorage.removeItem("token");
+      toast.success("Logged Out Successfully");
       navigate("/login");
     } catch (error) {
       console.log(error);
-      toast.error("LogOut Failed");
+      toast.error("Logout Failed");
     }
   };
 
@@ -59,7 +56,9 @@ function Nav() {
               <h1 className="text-2xl font-bold text-gray-900 font-heading">
                 AICART
               </h1>
-              <p className="text-xs text-gray-500">Admin Panel</p>
+              <p className="text-xs text-primary font-bold uppercase tracking-wider">
+                {adminData?.storeName || "Vendor Panel"}
+              </p>
             </div>
           </div>
         </div>

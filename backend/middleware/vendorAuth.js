@@ -7,6 +7,9 @@ const vendorAuth = async (req, res, next) => {
     }
     try {
         const token_decode = jwt.verify(token, process.env.JWT_SECRET);
+        req.vendorId = token_decode.id;
+        // Also set in body for controllers that expect it there
+        if (!req.body) req.body = {};
         req.body.vendorId = token_decode.id;
         next();
     } catch (error) {

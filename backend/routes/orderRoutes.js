@@ -1,7 +1,8 @@
 import express from 'express'
 import isAuth from '../middleware/isAuth.js'
-import { allOrders, placeOrder, placeOrderRazorpay, updateStatus, userOrders, verifyRazorpay } from '../controller/orderController.js'
+import { allOrders, placeOrder, placeOrderRazorpay, updateStatus, userOrders, vendorOrders, verifyRazorpay } from '../controller/orderController.js'
 import adminAuth from '../middleware/adminAuth.js'
+import vendorAuth from '../middleware/vendorAuth.js'
 
 const orderRoutes = express.Router()
 
@@ -13,6 +14,7 @@ orderRoutes.post("/verifyrazorpay",isAuth,verifyRazorpay)
  
 //for Admin
 orderRoutes.post("/list",adminAuth,allOrders)
-orderRoutes.post("/status",adminAuth,updateStatus)
+orderRoutes.post("/vendor-orders", vendorAuth, vendorOrders)
+orderRoutes.post("/status", vendorAuth, updateStatus)
 
 export default orderRoutes

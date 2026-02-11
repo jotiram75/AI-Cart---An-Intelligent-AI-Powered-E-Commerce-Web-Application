@@ -1,6 +1,6 @@
 import Vendor from "../model/vendorModel.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import validator from "validator";
 
 // Login Vendor
@@ -30,6 +30,7 @@ const loginVendor = async (req, res) => {
 
 // Register Vendor
 const registerVendor = async (req, res) => {
+    console.log("Register Vendor Request Received:", req.body);
     try {
         const { name, email, password, storeName } = req.body;
 
@@ -72,7 +73,8 @@ const registerVendor = async (req, res) => {
 // Vendor Profile
 const getVendorProfile = async (req, res) => {
     try {
-        const vendor = await Vendor.findById(req.body.vendorId).select('-password');
+        const vendorId = req.vendorId || req.body.vendorId;
+        const vendor = await Vendor.findById(vendorId).select('-password');
         res.json({ success: true, vendor });
     } catch (error) {
         console.log(error);

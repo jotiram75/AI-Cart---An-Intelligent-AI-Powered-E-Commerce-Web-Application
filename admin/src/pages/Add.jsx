@@ -3,6 +3,7 @@ import Nav from '../component/Nav'
 import Sidebar from '../component/Sidebar'
 import upload from '../assets/upload image.jpg'
 import { authDataContext } from '../context/AuthContext'
+import { adminDataContext } from '../context/AdminContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import Loading from '../component/Loading'
@@ -41,7 +42,10 @@ function Add() {
       formData.append("image3",image3)
       formData.append("image4",image4)
 
-      let result = await axios.post(serverUrl + "/api/product/addproduct" , formData, {withCredentials:true} )
+      let {token} = useContext(adminDataContext)
+      let result = await axios.post(serverUrl + "/api/product/addproduct" , formData, {
+          headers: { token }
+      } )
 
       console.log(result.data)
       toast.success("Product Added Successfully")
