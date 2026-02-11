@@ -2,15 +2,41 @@
 
 AICart is a modern, AI-powered e-commerce platform built with the MERN stack (MongoDB, Express, React, Node.js). It features a comprehensive admin panel, user authentication, and a dynamic frontend.
 
-## Project Structure
+## 🚀 Key Features
 
-The project is organized into three main directories:
+- **Storefront**: Modern, responsive UI with advanced product filtering, search, and a premium product detail page.
+- **Admin Dashboard**: Refined, high-contrast dashboard with real-time stats and quick actions.
+- **Product Management**: Full CRUD functionality, including a newly implemented **Product Edit** feature with image upload support.
+- **Image Intelligence**: Cloudinary integration for optimized image management.
+- **Order Flow**: Complete checkout process with Razorpay payment integration.
+- **User Experience**: Mobile-first design, smooth transitions, and intuitive navigation.
 
-- **frontend**: The customer-facing React application (Vite).
-- **admin**: The administrative dashboard (Vite + React).
-- **backend**: The Node.js/Express API server.
+## 📁 Project Structure
 
-## Getting Started
+```text
+AICart/
+├── admin/                # Admin Dashboard (Vite + React)
+│   ├── src/
+│   │   ├── component/    # Reusable UI components (Nav, Sidebar, etc.)
+│   │   ├── context/      # Admin and Auth state management
+│   │   ├── pages/        # Dashboard, Add Product, Edit Product, Lists, Orders
+│   │   └── App.jsx       # Admin routing and layout
+├── backend/              # Node.js/Express API Server
+│   ├── config/           # DB, Cloudinary, and other configurations
+│   ├── controller/       # Business logic for Auth, Orders, Products, and Vendors
+│   ├── middleware/       # Authentication (Admin/Vendor) and File Upload (Multer)
+│   ├── model/            # MongoDB Schemas (User, Product, Order, Vendor)
+│   ├── routes/           # API Endpoints
+│   └── index.js          # Server entry point
+└── frontend/             # Customer-Facing Application (Vite + React)
+    ├── src/
+    │   ├── component/    # Storefront components (Hero, RelatedProducts, etc.)
+    │   ├── context/      # Frontend state (Cart, Search, Shop)
+    │   ├── pages/        # Home, Collections, Product Details, Cart, Checkout
+    │   └── App.jsx       # Main application routing
+```
+
+## 🛠️ Getting Started
 
 ### Prerequisites
 
@@ -94,10 +120,10 @@ VITE_SERVER_URL=http://localhost:8000
     npm run dev
     ```
 
-## Deployment on Vercel
+## 🚀 Deployment
 
-This project is configured for deployment on Vercel.
+This project is optimized for deployment on Vercel.
 
-1.  **Backend:** Deploy the `backend` directory. Ensure to set all environment variables in Vercel project settings.
-2.  **Frontend:** Deploy the `frontend` directory. Set `VITE_SERVER_URL` to your deployed backend URL.
-3.  **Admin:** Deploy the `admin` directory. Set `VITE_SERVER_URL` to your deployed backend URL.
+1.  **Backend:** Deploy the `backend` directory. Ensure to set all environment variables in Vercel.
+2.  **Frontend:** Deploy the `frontend` directory. Set `VITE_SERVER_URL` to your deployed backend.
+3.  **Admin:** Deploy the `admin` directory. Set `VITE_SERVER_URL` to your deployed backend.
