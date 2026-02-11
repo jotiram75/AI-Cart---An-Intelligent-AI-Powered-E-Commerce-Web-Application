@@ -15,7 +15,29 @@ function ShopContext({ children }) {
   const { serverUrl } = useContext(authDataContext);
 
   const [cartItem, setCartItem] = useState({});
+  const [wishlistItems, setWishlistItems] = useState(() => {
+    const saved = localStorage.getItem("wishlist");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [loading, setLoading] = useState(false);
+
+  // Persistence for Wishlist
+  useEffect(() => {
+    localStorage.setItem("wishlist", JSON.stringify(wishlistItems));
+  }, [wishlistItems]);
+
+  // Toggle Wishlist
+  const toggleWishlist = (productId) => {
+    setWishlistItems((prev) => {
+      if (prev.includes(productId)) {
+        toast.info("Removed from Wishlist");
+        return prev.filter((id) => id !== productId);
+      } else {
+        toast.success("Added to Wishlist");
+        return [...prev, productId];
+      }
+    });
+  };
 
   const currency = "₹";
   const delivery_fee = 40;
@@ -143,6 +165,8 @@ function ShopContext({ children }) {
     setCartItem,
     updateQuantity,
     getCartAmount,
+    wishlistItems,
+    toggleWishlist,
     loading,
   };
 

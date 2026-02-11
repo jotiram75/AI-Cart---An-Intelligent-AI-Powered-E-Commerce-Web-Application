@@ -24,6 +24,7 @@ import Faq from './pages/Faq'
 import Shipping from './pages/Shipping'
 import Returns from './pages/Returns'
 import SizeGuide from './pages/SizeGuide'
+import Wishlist from './pages/Wishlist'
 function App() {
 let {userData} = useContext(userDataContext)
 let location = useLocation()
@@ -71,6 +72,7 @@ let location = useLocation()
         <Route path='/shipping' element={<Shipping />} />
         <Route path='/returns' element={<Returns />} />
         <Route path='/size-guide' element={<SizeGuide />} />
+        <Route path='/wishlist' element={<Wishlist />} />
 
         <Route path='*' element={<NotFound/>}/>
       </Routes>

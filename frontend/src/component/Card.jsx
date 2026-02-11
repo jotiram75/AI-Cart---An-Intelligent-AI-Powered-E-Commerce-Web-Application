@@ -1,10 +1,11 @@
 import React, { useContext } from 'react'
 import { shopDataContext } from '../context/ShopContext'
 import { useNavigate } from 'react-router-dom'
-import { IoHeartOutline } from 'react-icons/io5'
+import { IoHeartOutline, IoHeart } from 'react-icons/io5'
 
 function Card({name , image , id , price}) {
-    const {currency} = useContext(shopDataContext)
+    const {currency, toggleWishlist, wishlistItems} = useContext(shopDataContext)
+    const isWishlisted = wishlistItems?.includes(id)
     const navigate = useNavigate()
     
   return (
@@ -26,13 +27,17 @@ function Card({name , image , id , price}) {
              
              {/* Wishlist Button */}
              <button 
-                className='absolute top-3 right-3 w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-white z-10'
+                className='absolute top-3 right-3 w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-gray-100 z-10'
                 onClick={(e) => {
                     e.stopPropagation();
-                    // Add to wishlist logic
+                    toggleWishlist(id)
                 }}
              >
-                <IoHeartOutline className='w-5 h-5' />
+                {isWishlisted ? (
+                  <IoHeart className='w-5 h-5 text-red-500' />
+                ) : (
+                  <IoHeartOutline className='w-5 h-5 text-gray-700' />
+                )}
              </button>
              
              {/* Quick View Button - Desktop Only */}
