@@ -7,6 +7,8 @@ import { IoChevronBackOutline, IoChevronForwardOutline, IoCartOutline, IoCheckma
 import RelatedProduct from "../component/RelatedProduct";
 import Loading from "../component/Loading";
 import Title from "../component/Title";
+import TryOutfitModal from "../component/TryOutfitModal";
+import { IoSparkles } from "react-icons/io5";
 
 function ProductDetail() {
   const { productId } = useParams();
@@ -19,6 +21,7 @@ function ProductDetail() {
   const [images, setImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [size, setSize] = useState("");
+  const [isTryOutfitOpen, setIsTryOutfitOpen] = useState(false);
 
   const fetchProductData = async () => {
     const foundProduct = products.find((item) => item._id === productId);
@@ -141,6 +144,18 @@ function ProductDetail() {
               {productData.description}
             </p>
 
+            {productData.subCategory === "TopWear" && (
+              <div className="mt-8">
+                <button
+                  onClick={() => setIsTryOutfitOpen(true)}
+                  className="w-full sm:w-auto bg-gradient-to-r from-primary to-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all flex items-center justify-center gap-3 border-2 border-primary/20"
+                >
+                  <IoSparkles className="text-xl animate-pulse" />
+                  Try This Outfit (LookSync AI)
+                </button>
+              </div>
+            )}
+
             <div className="flex flex-col gap-6 my-10">
                 <div className="flex items-center justify-between">
                   <p className="text-gray-900 font-bold uppercase tracking-widest text-xs">Select Size</p>
@@ -234,6 +249,12 @@ function ProductDetail() {
           <RelatedProduct category={productData.category} subCategory={productData.subCategory} currentProductId={productData._id} />
          </div>
       </div>
+
+      <TryOutfitModal 
+        isOpen={isTryOutfitOpen} 
+        onClose={() => setIsTryOutfitOpen(false)} 
+        productImageUrl={productData.image1} 
+      />
 
     </div>
   ) : (
