@@ -7,8 +7,11 @@ import { IoChevronBackOutline, IoChevronForwardOutline, IoCartOutline, IoCheckma
 import RelatedProduct from "../component/RelatedProduct";
 import Loading from "../component/Loading";
 import Title from "../component/Title";
+<<<<<<< HEAD
 import TryOutfitModal from "../component/TryOutfitModal";
 import { IoSparkles } from "react-icons/io5";
+=======
+>>>>>>> 8fb7f14bb378d48ad30413aff898d04f4603f65e
 
 function ProductDetail() {
   const { productId } = useParams();
@@ -144,6 +147,7 @@ function ProductDetail() {
               {productData.description}
             </p>
 
+<<<<<<< HEAD
             {productData.subCategory === "TopWear" && (
               <div className="mt-8">
                 <button
@@ -156,6 +160,8 @@ function ProductDetail() {
               </div>
             )}
 
+=======
+>>>>>>> 8fb7f14bb378d48ad30413aff898d04f4603f65e
             <div className="flex flex-col gap-6 my-10">
                 <div className="flex items-center justify-between">
                   <p className="text-gray-900 font-bold uppercase tracking-widest text-xs">Select Size</p>
@@ -250,12 +256,15 @@ function ProductDetail() {
          </div>
       </div>
 
+<<<<<<< HEAD
       <TryOutfitModal 
         isOpen={isTryOutfitOpen} 
         onClose={() => setIsTryOutfitOpen(false)} 
         productImageUrl={productData.image1} 
       />
 
+=======
+>>>>>>> 8fb7f14bb378d48ad30413aff898d04f4603f65e
     </div>
   ) : (
     <div className="h-screen flex items-center justify-center">

@@ -9,7 +9,10 @@ import productRoutes from "./routes/productRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import vendorRoutes from "./routes/vendorRoutes.js";
+<<<<<<< HEAD
 import aiRoutes from "./routes/aiRoutes.js";
+=======
+>>>>>>> 8fb7f14bb378d48ad30413aff898d04f4603f65e
 
 dotenv.config();
 
@@ -17,6 +20,7 @@ let port = process.env.PORT || 6000;
 
 let app = express();
 
+<<<<<<< HEAD
 const whitelist = ["http://localhost:5173", "http://localhost:5174", "https://ai-cart-admin.vercel.app", "https://ai-cart-frontend.vercel.app", "https://aicart.vercel.app"];
 app.use(
   cors({
@@ -95,6 +99,47 @@ app.use((req, res) => {
 
 connectDb();
 
+=======
+app.use(express.json());
+app.use(cookieParser());
+
+// CORS Configuration - Allow multiple frontend domains
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://ai-cart-admin.vercel.app",
+      "https://ai-cart-frontend.vercel.app",
+      "https://aicart.vercel.app",
+      "https://aicart1.vercel.app",  // Add your deployed frontend
+      "https://aicart-admin.vercel.app",  // Add your deployed admin
+    ],
+    credentials: true,
+  }),
+);
+
+app.get("/", (req, res) => {
+  res.send("Server is Ready");
+});
+
+console.log("Mounting Vendor Routes at /api/vendor");
+app.use("/api/vendor", vendorRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/product", productRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/order", orderRoutes);
+
+// Catch-all 404 handler for debugging
+app.use((req, res) => {
+    console.log(`404 Not Found: ${req.method} ${req.url}`);
+    res.status(404).send(`404 Not Found: ${req.method} ${req.url}`);
+});
+
+connectDb();
+
+>>>>>>> 8fb7f14bb378d48ad30413aff898d04f4603f65e
 if (process.env.NODE_ENV !== "production") {
   app.listen(port, () => {
     console.log("Hello From Server");
