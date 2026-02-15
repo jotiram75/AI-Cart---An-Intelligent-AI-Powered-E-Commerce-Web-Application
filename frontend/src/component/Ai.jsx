@@ -176,15 +176,15 @@ function Ai() {
 
   return (
     <div
-      className="fixed lg:bottom-[20px] md:bottom-[40px] bottom-[80px] left-[2%] z-50"
+      className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-50"
       onClick={toggleAI}
     >
       <img
         src={ai}
         alt="AI Assistant"
-        className={`w-[60px] md:w-[80px] lg:w-[100px] cursor-pointer ${
+        className={`w-14 sm:w-16 cursor-pointer ${
           activeAi ? "scale-105" : "scale-100"
-        } transition-transform duration-300 ease-in-out`}
+        } transition-transform duration-300 ease-in-out hover:scale-110`}
         style={{
           filter: activeAi
             ? "drop-shadow(0px 0px 20px #00d2fc)"

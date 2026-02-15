@@ -25,11 +25,16 @@ import Shipping from './pages/Shipping'
 import Returns from './pages/Returns'
 import SizeGuide from './pages/SizeGuide'
 import Wishlist from './pages/Wishlist'
+import ChatBot from './component/ChatBot'
+
+import { ChatProvider } from './context/ChatContext'
+
 function App() {
 let {userData} = useContext(userDataContext)
 let location = useLocation()
   
   return (
+    <ChatProvider>
     <>
     <ScrollToTop/>
     <ToastContainer />
@@ -77,7 +82,9 @@ let location = useLocation()
         <Route path='*' element={<NotFound/>}/>
       </Routes>
       <Ai/>
+      <ChatBot />
     </>
+    </ChatProvider>
   )
 }
 

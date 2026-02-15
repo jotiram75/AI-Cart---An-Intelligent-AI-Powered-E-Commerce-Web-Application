@@ -1,10 +1,12 @@
 import React, { useContext } from 'react'
 import { shopDataContext } from '../context/ShopContext'
 import { useNavigate } from 'react-router-dom'
-import { IoHeartOutline, IoHeart } from 'react-icons/io5'
+import { IoHeartOutline, IoHeart, IoSparkles } from 'react-icons/io5'
+import { useChat } from '../context/ChatContext'
 
 function Card({name , image , id , price}) {
     const {currency, toggleWishlist, wishlistItems} = useContext(shopDataContext)
+    const { openChat } = useChat();
     const isWishlisted = wishlistItems?.includes(id)
     const navigate = useNavigate()
     
@@ -38,6 +40,18 @@ function Card({name , image , id , price}) {
                 ) : (
                   <IoHeartOutline className='w-5 h-5 text-gray-700' />
                 )}
+             </button>
+
+             {/* Chat Trigger Button */}
+             <button 
+                className='absolute top-14 right-3 w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-gray-100 z-10'
+                onClick={(e) => {
+                    e.stopPropagation();
+                    openChat('product', { name, image, id, price }); // Pass minimal product data
+                }}
+                title="Ask AI about this product"
+             >
+                <IoSparkles className='w-5 h-5 text-primary' />
              </button>
              
              {/* Quick View Button - Desktop Only */}

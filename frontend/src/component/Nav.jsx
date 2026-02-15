@@ -65,9 +65,9 @@ function Nav() {
           <div className="flex items-center justify-between h-16 md:h-20">
             
             {/* Logo */}
-            <div className="flex items-center gap-2 cursor-pointer z-50" onClick={() => navigate("/")}>
-              <img src="/logo.png" alt="AICart Logo" className="w-8 h-8 md:w-10 md:h-10" />
-              <h1 className={`text-xl md:text-2xl font-bold tracking-wide font-heading transition-colors ${
+            <div className="flex items-center gap-1 sm:gap-2 cursor-pointer z-50" onClick={() => navigate("/")}>
+              <img src="/logo.png" alt="AICart Logo" className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10" />
+              <h1 className={`text-lg sm:text-xl md:text-2xl font-bold tracking-wide font-heading transition-colors ${
                 isScrolled || !isHome ? "text-gray-900" : "text-gray-900 md:text-white"
               }`}>
                 AICART
@@ -99,14 +99,14 @@ function Nav() {
             </ul>
 
             {/* Right Side Icons */}
-            <div className="flex items-center gap-4 md:gap-6">
+            <div className="flex items-center gap-2 md:gap-6">
               {/* Search Icon */}
               <button
                 onClick={() => {
                   setShowSearch(!showSearch);
                   navigate("/collection");
                 }}
-                className={`p-2 transition-colors ${
+                className={`p-1 sm:p-2 transition-colors ${
                   isScrolled || !isHome ? "text-gray-700 hover:text-primary" : "text-gray-900 md:text-white hover:text-primary"
                 }`}
                 aria-label="Search"
@@ -117,7 +117,7 @@ function Nav() {
               {/* Wishlist Icon */}
               <button
                 onClick={() => navigate("/wishlist")}
-                className={`relative p-2 transition-colors ${
+                className={`relative p-1 sm:p-2 transition-colors ${
                   isScrolled || !isHome ? "text-gray-700 hover:text-primary" : "text-gray-900 md:text-white hover:text-primary"
                 }`}
                 aria-label="Wishlist"
@@ -133,7 +133,7 @@ function Nav() {
               {/* Cart Icon */}
               <button
                 onClick={() => navigate("/cart")}
-                className={`relative p-2 transition-colors ${
+                className={`relative p-1 sm:p-2 transition-colors ${
                   isScrolled || !isHome ? "text-gray-700 hover:text-primary" : "text-gray-900 md:text-white hover:text-primary"
                 }`}
                 aria-label="Cart"
@@ -168,7 +168,7 @@ function Nav() {
                 ) : (
                   <button
                     onClick={() => navigate("/login")}
-                    className={`p-2 transition-colors ${
+                    className={`p-1 sm:p-2 transition-colors ${
                       isScrolled || !isHome ? "text-gray-700 hover:text-primary" : "text-gray-900 md:text-white hover:text-primary"
                     }`}
                     aria-label="Login"
@@ -213,7 +213,7 @@ function Nav() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className={`md:hidden p-2 transition-colors ${
+                className={`md:hidden p-1 sm:p-2 transition-colors ${
                   isScrolled || !isHome ? "text-gray-700" : "text-gray-900 md:text-white"
                 }`}
                 aria-label="Menu"

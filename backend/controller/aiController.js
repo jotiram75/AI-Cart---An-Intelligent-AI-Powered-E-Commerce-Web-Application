@@ -30,7 +30,7 @@ export const tryOutfit = async (req, res) => {
         if (GEMINI_API_KEY) {
             try {
                 console.log("[V16] Generating Analytics with Gemini...");
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
                 // Prepare images for Gemini (assuming base64 input for user, url for product needs fetching or assuming base64 if possible, 
                 // but checking productImageUrl provided is a URL. Gemini URL handling is limited, better to pass base64 or download it.
@@ -123,5 +123,96 @@ export const tryOutfit = async (req, res) => {
     } catch (error) {
         console.error("[V16] Critical controller error:", error.message);
         res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const chatWithAI = async (req, res) => {
+    try {
+        console.log("[V19-FLASH-LATEST] chatWithAI called - Using gemini-flash-latest");
+        const { message, productContext } = req.body;
+
+        if (!message) {
+            return res.status(400).json({ success: false, message: "Message is required" });
+        }
+
+        if (!GEMINI_API_KEY) {
+            console.error("[V16] GEMINI_API_KEY is missing in chatWithAI");
+            return res.status(503).json({ success: false, message: "AI Service Unavailable (Missing Key)" });
+        }
+
+        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+        let systemInstruction = "";
+
+        if (productContext) {
+            console.log("Using Product Context:", productContext.name);
+            // Safe access to fields
+            const pName = productContext.name || "Unknown Product";
+            const pCat = productContext.category || "General";
+            const pSub = productContext.subCategory || "General";
+            const pPrice = productContext.price || "N/A";
+            const pDesc = productContext.description || "No description available.";
+            const pSizes = Array.isArray(productContext.sizes) ? productContext.sizes.join(", ") : (productContext.sizes || "N/A");
+
+            // Product Specific Mode
+            systemInstruction = `
+            You are a helpful and enthusiastic sales assistant for an e-commerce store called 'AICart'.
+            You are currently helping a customer looking at a specific product.
+            
+            Product Details:
+            Name: ${pName}
+            Category: ${pCat}
+            Sub-Category: ${pSub}
+            Price: ${pPrice}
+            Description: ${pDesc}
+            Sizes: ${pSizes}
+
+            Your Goal: Answer the customer's questions *specifically* about this product. 
+            - Be concise (max 2-3 sentences).
+            - Highlight key features mentioned in the description.
+            - If asked about price, mention it.
+            - If asked about something not in the details, say you don't have that info but it looks like a great product.
+            - Tone: Professional, friendly, and persuasive.
+            `;
+        } else {
+            console.log("Using Global Context");
+            // Global Store Mode
+            systemInstruction = `
+            You are a friendly customer support AI for 'AICart', a modern e-commerce fashion store.
+            Your Goal: Help users navigate the site, find general information, or feel welcome.
+            
+            - Store Name: AICart
+            - Policies: We offer 7-day returns, free global shipping, and cash on delivery.
+            - Navigation: We have Home, Collection, About, and Contact pages.
+            
+            - Be concise (max 2 sentences).
+            - If asked about specific order status, ask them to check their 'Orders' page.
+            - Tone: Helpful, polite, and brief.
+            `;
+        }
+
+        const chat = model.startChat({
+            history: [
+                {
+                    role: "user",
+                    parts: [{ text: systemInstruction }]
+                },
+                {
+                    role: "model",
+                    parts: [{ text: "Understood. I am ready to assist the customer with AICart queries." }]
+                }
+            ]
+        });
+
+        console.log("Sending message to Gemini...");
+        const result = await chat.sendMessage(message);
+        const responseText = result.response.text();
+        console.log("Gemini response received (length):", responseText.length);
+
+        res.json({ success: true, response: responseText });
+
+    } catch (error) {
+        console.error("[V16] Chat Controller Error:", error); // Log full error object
+        res.status(500).json({ success: false, message: "AI Error: " + error.message });
     }
 };

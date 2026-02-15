@@ -14,6 +14,7 @@ import Loading from "../component/Loading";
 import Title from "../component/Title";
 import TryOutfitModal from "../component/TryOutfitModal";
 import { IoSparkles } from "react-icons/io5";
+import { useChat } from "../context/ChatContext";
 
 function ProductDetail() {
   const { productId } = useParams();
@@ -28,6 +29,7 @@ function ProductDetail() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [size, setSize] = useState("");
   const [isTryOutfitOpen, setIsTryOutfitOpen] = useState(false);
+  const { openChat } = useChat();
 
   const fetchProductData = async () => {
     const foundProduct = products.find((item) => item._id === productId);
@@ -168,6 +170,14 @@ function ProductDetail() {
               >
                 <IoSparkles className="text-xl animate-pulse" />
                 Try This Outfit (LookSync AI)
+              </button>
+              {/* Product Specific Chatbot */}
+              <button 
+                  onClick={() => openChat('product', productData)}
+                  className="w-full sm:w-auto bg-gray-100 text-gray-800 px-8 py-3 rounded-2xl font-bold uppercase tracking-widest shadow-sm hover:bg-gray-200 transition-all flex items-center justify-center gap-3 border border-gray-200 mt-4"
+              >
+                  <IoSparkles className="text-primary" />
+                  Ask AI Assistant
               </button>
             </div>
           )}
