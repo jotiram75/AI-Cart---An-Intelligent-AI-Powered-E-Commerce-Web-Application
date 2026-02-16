@@ -216,3 +216,42 @@ export const chatWithAI = async (req, res) => {
         res.status(500).json({ success: false, message: "AI Error: " + error.message });
     }
 };
+
+export const getSuggestedQuestions = async (req, res) => {
+    try {
+        // If no API key, return static defaults
+        if (!GEMINI_API_KEY) {
+            return res.json({
+                success: true,
+                questions: ["Show me latest products", "Track my order", "What is your return policy?"]
+            });
+        }
+
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const prompt = `
+        Generate 3 short, diverse, and relevant questions a user might ask a fashion e-commerce voice assistant.
+        Examples: "Show me red dresses", "Where is my order?", "Do you have sneakers?", "What's trending?".
+        
+        Return ONLY a raw JSON array of strings. No markdown.
+        Example: ["Question 1", "Question 2", "Question 3"]
+        `;
+
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+        
+        // Clean markdown if present
+        const jsonString = responseText.replace(/```json|```/g, "").trim();
+        const questions = JSON.parse(jsonString);
+
+        res.json({ success: true, questions });
+
+    } catch (error) {
+        console.error("Suggested Questions Error:", error);
+        // Fallback to defaults
+        res.json({
+            success: true,
+            questions: ["Show me new arrivals", "Check my order status", "Contact support"]
+        });
+    }
+};

@@ -1,18 +1,37 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import ai from "../assets/ai.png";
 import { shopDataContext } from "../context/ShopContext";
+import { authDataContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import open from "../assets/open.mp3";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 function Ai() {
   const { showSearch, setShowSearch, setSearch } = useContext(shopDataContext);
+  const { serverUrl } = useContext(authDataContext);
   const navigate = useNavigate();
   const [activeAi, setActiveAi] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
+  const [suggestedQuestions, setSuggestedQuestions] = useState([]);
 
   const recognitionRef = useRef(null);
   const openingSound = new Audio(open);
+
+  useEffect(() => {
+    // Fetch suggested questions on mount
+    const fetchQuestions = async () => {
+        try {
+            const { data } = await axios.get(`${serverUrl}/api/ai/suggest-questions`);
+            if (data.success) {
+                setSuggestedQuestions(data.questions);
+            }
+        } catch (error) {
+            console.error("Failed to fetch suggested questions", error);
+        }
+    };
+    fetchQuestions();
+  }, [serverUrl]);
 
   const speak = (message) => {
     // Cancel any ongoing speech to avoid overlap
@@ -44,9 +63,6 @@ function Ai() {
 
     recognition.onend = () => {
       console.log("Voice Assistant Stopped");
-      // If we want it to stay active until manually toggled, we might need to restart it here
-      // But for a toggle-based UI, stopping is fine, just update state if needed
-      // Note: We don't set activeAi(false) here automatically to avoid UI flickering if it stops briefly
     };
 
     recognition.onerror = (event) => {
@@ -77,67 +93,23 @@ function Ai() {
 
         handleCommand(transcript);
     };
+  }, [isSearchMode, activeAi]); 
 
-    // We don't put handleCommand in dependecy to avoid re-binding too often, 
-    // but handleCommand needs access to latest state (which it gets via closures if defined inside component or via refs)
-  }, [isSearchMode, activeAi]); // Re-bind onResult when mode changes to capture correct closure
 
-  const handleCommand = (transcript) => {
-    const stopWords = ["the", "please", "a", "for", "me", "want", "to", "show", "search", "open", "some", "i", "need"];
-    const allowedKeywords = [
-      "shirt", "tshirt", "t-shirt", "pant", "pants", "jeans", "jacket",
-      "men", "women", "kid", "kids", "girl", "boy", "kurta", "saree", "dress",
-      "shoes", "top", "fashion"
+  const handleCommand = async (transcript) => {
+    // 1. Defined Navigation Commands (Priority)
+    const navCommands = [
+        { keywords: ["home"], path: "/", message: "Opening home page" },
+        { keywords: ["collection", "product", "shop", "store", "new arrival"], path: "/collection", message: "Opening collection" },
+        { keywords: ["about"], path: "/about", message: "Opening about page" },
+        { keywords: ["cart", "basket"], path: "/cart", message: "Opening cart" },
+        { keywords: ["contact", "support"], path: "/contact", message: "Opening contact page" },
+        { keywords: ["order", "track"], path: "/order", message: "Opening your orders" }, // Covers "Check my order status"
+        { keywords: ["login", "sign in"], path: "/login", message: "Opening login page" },
+        { keywords: ["policy", "return"], path: "/returns", message: "Opening return policy" },
     ];
 
-    // --- SEARCH MODE ---
-    if (isSearchMode) {
-      if (transcript.includes("cancel") || transcript.includes("stop")) {
-        speak("Search cancelled.");
-        setIsSearchMode(false);
-        return;
-      }
-
-      let words = transcript.split(" ").filter((w) => !stopWords.includes(w));
-      let matchedWords = words.filter((w) => allowedKeywords.some((k) => w.includes(k)));
-      
-      // If found keywords or long enough phrase, assume it's a search query
-      if (matchedWords.length > 0 || words.length > 0) {
-        let finalSearch = matchedWords.length > 0 ? matchedWords.join(" ") : words.join(" ");
-        speak("Searching for " + finalSearch);
-        setSearch(finalSearch);
-        setShowSearch(true);
-        navigate("/collection"); // Ensure we are on collection page to see results
-        setIsSearchMode(false);
-      } else {
-        speak("I didn't catch that. Please say the product name.");
-      }
-      return;
-    }
-
-    // --- STANDARD COMMANDS ---
-
-    // 1. Activate Search
-    if (transcript.includes("search") || transcript.includes("find")) {
-      speak("What are you looking for?");
-      setShowSearch(true);
-      navigate("/collection");
-      setIsSearchMode(true);
-      return;
-    }
-
-    // 2. Navigation
-    const routes = [
-      { keywords: ["home"], path: "/", message: "Opening home page" },
-      { keywords: ["collection", "product", "shop", "store"], path: "/collection", message: "Opening collection" },
-      { keywords: ["about"], path: "/about", message: "Opening about page" },
-      { keywords: ["cart", "basket"], path: "/cart", message: "Opening cart" },
-      { keywords: ["contact", "support"], path: "/contact", message: "Opening contact page" },
-      { keywords: ["orders", "my order"], path: "/order", message: "Opening your orders" },
-      { keywords: ["login", "sign in"], path: "/login", message: "Opening login page" },
-    ];
-
-    for (const route of routes) {
+    for (const route of navCommands) {
       if (route.keywords.some((k) => transcript.includes(k))) {
         speak(route.message);
         navigate(route.path);
@@ -145,18 +117,66 @@ function Ai() {
       }
     }
 
-    // 3. Close/Stop
+    // 2. Stop/Close
     if (transcript.includes("close") || transcript.includes("stop") || transcript.includes("exit")) {
         speak("Goodbye!");
-        toggleAI(); // Use the function to stop
+        toggleAI(); 
         return;
     }
 
-    // Fallback
-    // Only speak "didn't understand" if we are consistently confident it was a command directed at us
-    // For now, maybe just ignore valid noise or give a generic prompt
-    // speak("Sorry, I didn't understand. You can say Home, Cart, or Search.");
+    // 3. Search Logic
+    const searchKeywords = ["search", "find", "show me", "looking for", "buy"];
+    // Remove "show me", "search for" etc to get the raw query
+    let cleanTranscript = transcript;
+    searchKeywords.forEach(k => {
+        cleanTranscript = cleanTranscript.replace(k, "").trim();
+    });
+
+    const productKeywords = [
+      "shirt", "tshirt", "t-shirt", "pant", "pants", "jeans", "jacket",
+      "men", "women", "kid", "kids", "girl", "boy", "kurta", "saree", "dress",
+      "shoes", "top", "fashion", "sneaker", "heel", "sandal"
+    ];
+    
+    // Check if the cleaned transcript contains any product keywords OR if explicitly asked to search
+    const isExplicitSearch = searchKeywords.some(k => transcript.startsWith(k));
+    const hasProductKeyword = productKeywords.some(k => cleanTranscript.includes(k));
+
+    if (isExplicitSearch || hasProductKeyword) {
+        if(cleanTranscript.length < 2) {
+             speak("What are you looking for?");
+             setShowSearch(true);
+             navigate("/collection");
+             setIsSearchMode(true);
+             return;
+        }
+        
+        speak("Searching for " + cleanTranscript);
+        setSearch(cleanTranscript);
+        setShowSearch(true);
+        navigate("/collection"); 
+        setIsSearchMode(false);
+        return;
+    }
+
+    // 4. Fallback: AI Chat for General Queries
+    // If it's not a nav command and not a clear product search, ask the AI
+    try {
+        const { data } = await axios.post(`${serverUrl}/api/ai/chat`, {
+            message: transcript
+        });
+        
+        if (data.success && data.response) {
+            speak(data.response);
+        } else {
+             speak("I am not sure about that. Try asking for products or say 'Home'.");
+        }
+    } catch (error) {
+        console.error("AI Chat Error:", error);
+         speak("I'm having trouble connecting. Please try again.");
+    }
   };
+
 
   const toggleAI = () => {
     if (!recognitionRef.current) return;
@@ -170,27 +190,50 @@ function Ai() {
       openingSound.play().catch(e => console.log("Audio play failed", e));
       recognitionRef.current.start();
       setActiveAi(true);
-      setTimeout(()=> speak("Hello! How can I help?"), 1000); // Slight delay to not record itself
+      setTimeout(()=> speak("Hello! How can I help?"), 1000); 
     }
   };
 
+  const handleSuggestionClick = (question) => {
+      // Treat clicks exactly like spoken commands
+      handleCommand(question.toLowerCase());
+  };
+
+
+
   return (
-    <div
-      className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-50"
-      onClick={toggleAI}
-    >
-      <img
-        src={ai}
-        alt="AI Assistant"
-        className={`w-14 sm:w-16 cursor-pointer ${
-          activeAi ? "scale-105" : "scale-100"
-        } transition-transform duration-300 ease-in-out hover:scale-110`}
-        style={{
-          filter: activeAi
-            ? "drop-shadow(0px 0px 20px #00d2fc)"
-            : "drop-shadow(0px 0px 5px black)",
-        }}
-      />
+    <div className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-50 flex flex-col items-center gap-2">
+      
+      {/* Suggestions Popover */}
+      {activeAi && suggestedQuestions.length > 0 && (
+          <div className="mb-2 flex flex-col gap-2 animate-fade-in">
+              {suggestedQuestions.map((q, idx) => (
+                  <button 
+                    key={idx}
+                    onClick={() => handleSuggestionClick(q)}
+                    className="bg-white/90 backdrop-blur-sm text-gray-800 text-xs sm:text-sm px-3 py-1.5 rounded-full shadow-md border border-gray-100 hover:bg-primary hover:text-white transition-all text-left whitespace-nowrap"
+                  >
+                      "{q}"
+                  </button>
+              ))}
+          </div>
+      )}
+
+      {/* AI Button */}
+      <div onClick={toggleAI}>
+        <img
+            src={ai}
+            alt="AI Assistant"
+            className={`w-18 sm:w-20 cursor-pointer ${
+            activeAi ? "scale-105" : "scale-100"
+            } transition-transform duration-300 ease-in-out hover:scale-110`}
+            style={{
+            filter: activeAi
+                ? "drop-shadow(0px 0px 20px #00d2fc)"
+                : "drop-shadow(0px 0px 5px black)",
+            }}
+        />
+      </div>
     </div>
   );
 }
