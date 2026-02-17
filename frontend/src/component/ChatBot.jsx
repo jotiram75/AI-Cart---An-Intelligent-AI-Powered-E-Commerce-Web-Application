@@ -108,9 +108,9 @@ const ChatBot = () => {
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-4">
       {/* Chat Window */}
       {isOpen && (
-        <div className="bg-white shadow-2xl rounded-2xl border border-gray-100 overflow-hidden flex flex-col w-[90vw] h-[70vh] sm:w-[400px] sm:h-[650px] animate-fade-in origin-bottom-right">
+        <div className="bg-white shadow-xl rounded-xl border border-gray-200 overflow-hidden flex flex-col w-[85vw] h-[60vh] sm:w-[350px] sm:h-[480px] animate-fade-in origin-bottom-right transition-all">
           {/* Header */}
-          <div className="bg-gray-900 p-4 flex justify-between items-center text-white shrink-0">
+          <div className="bg-gray-900 p-4 flex justify-between items-center text-white shrink-0 shadow-sm">
             <div className="flex items-center gap-2">
               <IoSparkles className="text-primary" />
               <span className="font-bold tracking-wide text-sm sm:text-base">
@@ -126,7 +126,7 @@ const ChatBot = () => {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50 scrollbar-thin scrollbar-thumb-gray-300">
+          <div className="flex-1 p-3 overflow-y-auto space-y-3 bg-white scrollbar-thin scrollbar-thumb-gray-200">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
@@ -138,7 +138,7 @@ const ChatBot = () => {
                                     ${
                                       msg.role === "user"
                                         ? "bg-primary text-white rounded-br-none"
-                                        : "bg-white border border-gray-200 text-gray-700 rounded-bl-none"
+                                        : "bg-gray-100/80 text-gray-800 rounded-bl-none"
                                     }
                                 `}
                 >
@@ -148,17 +148,17 @@ const ChatBot = () => {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white border border-gray-200 p-3 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-2">
+                <div className="bg-gray-100 p-3 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-2">
                   <div
-                    className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                    className="w-1.5 h-1.5 bg-gray-600 rounded-full animate-bounce"
                     style={{ animationDelay: "0ms" }}
                   />
                   <div
-                    className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                    className="w-1.5 h-1.5 bg-gray-600 rounded-full animate-bounce"
                     style={{ animationDelay: "150ms" }}
                   />
                   <div
-                    className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                    className="w-1.5 h-1.5 bg-gray-600 rounded-full animate-bounce"
                     style={{ animationDelay: "300ms" }}
                   />
                 </div>
@@ -171,8 +171,8 @@ const ChatBot = () => {
           <div className="p-3 bg-white border-t border-gray-100 flex gap-2 shrink-0">
             <input
               type="text"
-              className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-              placeholder="Type your question..."
+              className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+              placeholder="Ask me anything..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyPress}
@@ -180,9 +180,9 @@ const ChatBot = () => {
             <button
               onClick={handleSend}
               disabled={isLoading || !input.trim()}
-              className="bg-primary text-white p-3 rounded-xl hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md active:scale-95"
+              className="bg-primary text-white p-2.5 rounded-xl hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md active:scale-95"
             >
-              <IoSend size={18} />
+              <IoSend size={16} />
             </button>
           </div>
         </div>
