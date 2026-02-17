@@ -126,6 +126,10 @@ export const tryOutfit = async (req, res) => {
     }
 };
 
+import ChatQuery from "../model/ChatQuery.js";
+
+// ... existing imports ...
+
 export const chatWithAI = async (req, res) => {
     try {
         console.log("[V19-FLASH-LATEST] chatWithAI called - Using gemini-flash-latest");
@@ -134,6 +138,30 @@ export const chatWithAI = async (req, res) => {
         if (!message) {
             return res.status(400).json({ success: false, message: "Message is required" });
         }
+
+        // 1. Check Cache
+        const contextType = productContext ? "product" : "global";
+        const productName = productContext?.name?.trim().toLowerCase() || null;
+        const normalizedQuery = message.trim().toLowerCase();
+
+        const cachedQuery = await ChatQuery.findOne({
+            query: normalizedQuery,
+            contextType: contextType,
+            productName: productName
+        });
+
+        if (cachedQuery) {
+            console.log("[CACHE HIT] Returning cached response for:", normalizedQuery);
+            
+            // Async update hits and lastAccessed
+            cachedQuery.hits += 1;
+            cachedQuery.lastAccessed = Date.now();
+            await cachedQuery.save();
+
+            return res.json({ success: true, response: cachedQuery.response });
+        }
+
+        console.log("[CACHE MISS] Querying Gemini...");
 
         if (!GEMINI_API_KEY) {
             console.error("[V16] GEMINI_API_KEY is missing in chatWithAI");
@@ -208,6 +236,20 @@ export const chatWithAI = async (req, res) => {
         const result = await chat.sendMessage(message);
         const responseText = result.response.text();
         console.log("Gemini response received (length):", responseText.length);
+
+        // 2. Save to Cache
+        try {
+            await ChatQuery.create({
+                query: normalizedQuery,
+                response: responseText,
+                contextType: contextType,
+                productName: productName
+            });
+            console.log("[CACHE SAVE] Saved new query/response to cache.");
+        } catch (cacheError) {
+            console.error("[CACHE ERROR] Failed to save to cache:", cacheError.message);
+            // Non-blocking error, continue to respond
+        }
 
         res.json({ success: true, response: responseText });
 
