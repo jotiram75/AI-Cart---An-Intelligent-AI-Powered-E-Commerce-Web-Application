@@ -26,6 +26,9 @@ import Returns from './pages/Returns'
 import SizeGuide from './pages/SizeGuide'
 import Wishlist from './pages/Wishlist'
 import ChatBot from './component/ChatBot'
+import BecomeSeller from './pages/BecomeSeller'
+// import SellerLogin from './pages/SellerLogin' // Moved to Admin
+import SuperAdmin from './pages/SuperAdmin'
 
 import { ChatProvider } from './context/ChatContext'
 
@@ -80,6 +83,9 @@ let location = useLocation()
         <Route path='/wishlist' element={<Wishlist />} />
 
         <Route path='*' element={<NotFound/>}/>
+        <Route path='/become-seller' element={<BecomeSeller />} />
+        {/* SellerLogin moved to Admin Panel */}
+        <Route path='/super-admin' element={<SuperAdmin />} />
       </Routes>
       <Ai/>
       <ChatBot />

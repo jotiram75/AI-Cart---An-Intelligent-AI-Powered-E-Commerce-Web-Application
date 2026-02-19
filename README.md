@@ -4,12 +4,24 @@ AICart is a modern, AI-powered e-commerce platform built with the MERN stack (Mo
 
 ## 🚀 Key Features
 
-- **Storefront**: Modern, responsive UI with advanced product filtering, search, and a premium product detail page.
-- **Admin Dashboard**: Refined, high-contrast dashboard with real-time stats and quick actions.
-- **Product Management**: Full CRUD functionality, including a newly implemented **Product Edit** feature with image upload support.
-- **Image Intelligence**: Cloudinary integration for optimized image management.
-- **Order Flow**: Complete checkout process with Razorpay payment integration.
-- **User Experience**: Mobile-first design, smooth transitions, and intuitive navigation.
+### 🛒 Advanced Storefront
+- **Modern UI/UX**: Responsive design with advanced product filtering, search, and a premium product detail page.
+- **Voice Assistant**: Hands-free navigation and product search powered by speech recognition. Just say "Show me shirts" or "Go to cart".
+- **AI Chatbot**: Intelligent assistant powered by Google Gemini.
+    - **Global Context**: Answers general queries (Return policy, Contact info).
+    - **Product Context**: key-valuable insights and specific answers when viewing a product.
+    - **Smart Caching**: Database caching for instant responses to common queries.
+
+### 🔐 Secure & Scalable Backend
+- **Authentication**: Robust user authentication using **Firebase** (Google Login) and JWT (Email/Password).
+- **Database**: Hosted on **MongoDB Atlas** for high availability and scalability.
+- **Payments**: Integrated **Razorpay** gateway for secure and seamless order processing.
+- **Image Intelligence**: Cloudinary integration for optimized image storage and delivery.
+
+### 📊 Comprehensive Admin Panel
+- **Dashboard**: Real-time statistics, sales charts, and order tracking.
+- **Product Management**: Full CRUD capabilities with image uploads.
+- **Order Management**: Track and update order statuses.
 
 ## 📁 Project Structure
 

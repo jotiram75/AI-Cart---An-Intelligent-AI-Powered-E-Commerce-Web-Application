@@ -192,14 +192,7 @@ function Nav() {
                     >
                       My Orders
                     </button>
-                    <button
-                      onClick={() => {
-                        window.location.href = import.meta.env.VITE_ADMIN_URL;
-                      }}
-                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors"
-                    >
-                      Admin Panel
-                    </button>
+                    {/* Admin Panel Link Removed */}
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100"
@@ -209,6 +202,14 @@ function Nav() {
                   </div>
                 )}
               </div>
+
+               {/* Become Seller Button */}
+               <button
+                  onClick={() => navigate("/become-seller")}
+                  className="hidden md:flex items-center gap-2 border border-teal-500 text-teal-600 px-3 py-1.5 rounded-md text-sm font-bold tracking-wide hover:bg-teal-50 transition-colors"
+                >
+                  <span className="text-lg">🏪</span> BECOME SELLER
+                </button>
 
               {/* Mobile Menu Button */}
               <button
@@ -253,6 +254,12 @@ function Nav() {
                   {item.label}
                 </button>
               ))}
+              <button
+                onClick={() => navigate("/become-seller")}
+                className="text-left px-6 py-4 text-base font-semibold uppercase tracking-wider text-teal-600 hover:bg-teal-50 transition-colors border-t border-gray-100 mt-2"
+              >
+                Become Seller
+              </button>
             </nav>
           </div>
         </div>

@@ -16,6 +16,9 @@ const loginVendor = async (req, res) => {
         const isMatch = await bcrypt.compare(password, vendor.password);
 
         if (isMatch) {
+            if (vendor.status !== 'active') {
+                return res.json({ success: false, message: "Account pending approval. Please contact admin." });
+            }
             const token = jwt.sign({ id: vendor._id }, process.env.JWT_SECRET);
             res.json({ success: true, token, vendor: { name: vendor.name, email: vendor.email, storeName: vendor.storeName } });
         } else {
@@ -32,7 +35,7 @@ const loginVendor = async (req, res) => {
 const registerVendor = async (req, res) => {
     console.log("Register Vendor Request Received:", req.body);
     try {
-        const { name, email, password, storeName } = req.body;
+        const { name, email, password, storeName, mobile, gstin, address } = req.body;
 
         // Check if vendor already exists
         const exists = await Vendor.findOne({ email });
@@ -56,13 +59,17 @@ const registerVendor = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            storeName
+            storeName,
+            mobile,
+            gstin,
+            address: address || {},
+            status: 'pending' // Default to pending
         });
 
         const vendor = await newVendor.save();
         const token = jwt.sign({ id: vendor._id }, process.env.JWT_SECRET);
 
-        res.json({ success: true, token, vendor: { name: vendor.name, email: vendor.email, storeName: vendor.storeName } });
+        res.json({ success: true, token, vendor: { name: vendor.name, email: vendor.email, storeName: vendor.storeName, status: vendor.status } });
 
     } catch (error) {
         console.log(error);
@@ -82,4 +89,27 @@ const getVendorProfile = async (req, res) => {
     }
 }
 
-export { loginVendor, registerVendor, getVendorProfile };
+// Get All Vendors (Super Admin)
+const getAllVendors = async (req, res) => {
+    try {
+        const vendors = await Vendor.find({}).select('-password');
+        res.json({ success: true, vendors });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+// Update Vendor Status (Super Admin)
+const updateVendorStatus = async (req, res) => {
+    try {
+        const { vendorId, status } = req.body;
+        const vendor = await Vendor.findByIdAndUpdate(vendorId, { status }, { new: true });
+        res.json({ success: true, message: "Vendor status updated", vendor });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+export { loginVendor, registerVendor, getVendorProfile, getAllVendors, updateVendorStatus };

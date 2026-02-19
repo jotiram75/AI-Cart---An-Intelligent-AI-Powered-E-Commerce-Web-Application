@@ -17,4 +17,8 @@ orderRoutes.post("/list",adminAuth,allOrders)
 orderRoutes.post("/vendor-orders", vendorAuth, vendorOrders)
 orderRoutes.post("/status", vendorAuth, updateStatus)
 
+//for Super Admin
+import superAdminAuth from '../middleware/superAdminAuth.js';
+orderRoutes.post("/super-list", superAdminAuth, allOrders);
+
 export default orderRoutes
