@@ -47,7 +47,7 @@ function Login() {
     try {
       const response = await signInWithPopup(auth, provider);
       const user = response.user;
-      const name = user.displayName;
+      const name = user.displayName || user.email.split('@')[0]; // Fallback to email username
       const email = user.email;
 
       const result = await axios.post(
