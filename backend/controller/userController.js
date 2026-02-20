@@ -1,4 +1,5 @@
 import User from "../model/userModel.js"
+import mongoose from "mongoose";
 
 
 export const getCurrentUser = async (req,res) => {
@@ -8,6 +9,13 @@ export const getCurrentUser = async (req,res) => {
             console.log("No userId, returning null 200");
             return res.status(200).json(null)
         }
+        
+        // Validate ObjectId to prevent cast error
+        if (!mongoose.Types.ObjectId.isValid(req.userId)) {
+             console.log("Invalid userId format, returning null 200");
+             return res.status(200).json(null);
+        }
+
         let user = await User.findById(req.userId).select("-password")
         if(!user){
            console.log("UserId present but user not found in DB, returning null 200");

@@ -89,8 +89,11 @@ export const googleLogin = async (req,res) => {
         let {name , email} = req.body;
          let user = await User.findOne({email}) 
         if(!user){
+          // Fallback name if missing
+          const displayName = name || email.split('@')[0];
           user = await User.create({
-            name,email
+            name: displayName,
+            email
         })
         }
        
