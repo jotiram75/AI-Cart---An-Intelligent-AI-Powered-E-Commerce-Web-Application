@@ -203,13 +203,12 @@ function Nav() {
                 )}
               </div>
 
-               {/* Become Seller Button */}
-               <button
-                  onClick={() => navigate("/become-seller")}
-                  className="hidden md:flex items-center gap-2 border border-teal-500 text-teal-600 px-3 py-1.5 rounded-md text-sm font-bold tracking-wide hover:bg-teal-50 transition-colors"
-                >
-                  <span className="text-lg">🏪</span> BECOME SELLER
-                </button>
+                <button
+                   onClick={() => navigate("/become-seller")}
+                   className="hidden md:flex items-center gap-2 border border-gray-300 text-primary px-3 py-1.5 rounded-md text-sm font-bold tracking-wide hover:bg-primary hover:text-white transition-all duration-300 shadow-sm hover:shadow-md"
+                 >
+                   <span className="text-lg">🏪</span> BECOME SELLER
+                 </button>
 
               {/* Mobile Menu Button */}
               <button
@@ -256,7 +255,7 @@ function Nav() {
               ))}
               <button
                 onClick={() => navigate("/become-seller")}
-                className="text-left px-6 py-4 text-base font-semibold uppercase tracking-wider text-teal-600 hover:bg-teal-50 transition-colors border-t border-gray-100 mt-2"
+                className="text-left px-6 py-4 text-base font-semibold uppercase tracking-wider text-primary hover:bg-gray-50 transition-colors border-t border-gray-100 mt-2"
               >
                 Become Seller
               </button>
