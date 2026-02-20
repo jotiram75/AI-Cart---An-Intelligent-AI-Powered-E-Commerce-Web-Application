@@ -90,13 +90,27 @@ const getVendorProfile = async (req, res) => {
 }
 
 // Get All Vendors (Super Admin)
+// Get All Vendors (Super Admin)
 const getAllVendors = async (req, res) => {
     try {
+        console.log("getAllVendors: Fetching all vendors...");
+        // Ensure Vendor model is available
+        if (!Vendor) {
+             throw new Error("Vendor model is not defined");
+        }
+        
         const vendors = await Vendor.find({}).select('-password');
+        
+        if (!vendors) {
+             console.log("getAllVendors: Vendors result is null/undefined");
+             return res.json({ success: true, vendors: [] });
+        }
+        
+        console.log(`getAllVendors: Found ${vendors.length} vendors`);
         res.json({ success: true, vendors });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, message: error.message });
+        console.error("getAllVendors Error:", error);
+        res.status(500).json({ success: false, message: error.message || "Failed to fetch vendors" });
     }
 }
 
