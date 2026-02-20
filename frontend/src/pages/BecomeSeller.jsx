@@ -32,7 +32,9 @@ const BecomeSeller = () => {
             const response = await axios.post(`${serverUrl}/api/vendor/register`, formData);
             if (response.data.success) {
                 toast.success("Application Submitted! Status: Pending Approval.");
-                navigate('/seller-login'); 
+                // Redirect to Admin Panel Login
+                const adminUrl = import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174';
+                window.location.href = `${adminUrl}/seller-login`; 
             } else {
                 toast.error(response.data.message);
             }
@@ -131,7 +133,7 @@ const BecomeSeller = () => {
                         </div>
                     </form>
                      <p className="text-center text-sm text-gray-500 mt-6">
-                        Already a seller? <span onClick={() => window.location.href = import.meta.env.VITE_ADMIN_URL + '/seller-login' || 'http://localhost:5174/seller-login'} className="text-[#717fe0] font-bold cursor-pointer hover:underline">Log in here</span>
+                        Already a seller? <span onClick={() => window.location.href = (import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174') + '/seller-login'} className="text-[#717fe0] font-bold cursor-pointer hover:underline">Log in here</span>
                     </p>
                 </div>
             </div>
