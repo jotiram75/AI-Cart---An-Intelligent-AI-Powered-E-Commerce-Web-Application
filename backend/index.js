@@ -24,6 +24,8 @@ const whitelist = [
   "https://ai-cart-frontend.vercel.app",
   "https://aicart.vercel.app",
   "https://aicart1.vercel.app",
+  "https://aicart-admin.vercel.app",
+  "https://aicart-frontend.vercel.app"
 ];
 app.use(
   cors({
