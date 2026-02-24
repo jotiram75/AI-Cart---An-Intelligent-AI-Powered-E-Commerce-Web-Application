@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import Replicate from "replicate";
 
 const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
 
 if (!HUGGINGFACE_API_KEY) {
     throw new Error("Hugging Face API Key Missing");
@@ -12,6 +14,7 @@ if (!GEMINI_API_KEY) {
 }
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const replicate = REPLICATE_API_TOKEN ? new Replicate({ auth: REPLICATE_API_TOKEN }) : null;
 
 export const tryOutfit = async (req, res) => {
     try {
@@ -30,11 +33,9 @@ export const tryOutfit = async (req, res) => {
         if (GEMINI_API_KEY) {
             try {
                 console.log("[V16] Generating Analytics with Gemini...");
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-                // Prepare images for Gemini (assuming base64 input for user, url for product needs fetching or assuming base64 if possible, 
-                // but checking productImageUrl provided is a URL. Gemini URL handling is limited, better to pass base64 or download it.
-                // For simplicity/speed we will try to fetch the product image to base64 first.
+                // Prepare images for Gemini (assuming base64 input for user, url for product needs fetching or assuming base64 if possible)
                 
                 const productResp = await axios.get(productImageUrl, { responseType: 'arraybuffer' });
                 const productBase64 = Buffer.from(productResp.data).toString('base64');
@@ -71,46 +72,207 @@ export const tryOutfit = async (req, res) => {
                 console.log("[V16] Analytics generated successfully!");
 
             } catch (geminiError) {
-                console.error("[V16] Gemini Analysis Error:", geminiError);
+                console.error("[V16] Gemini Analysis Error:", geminiError.message);
                 // Fallback is already set
             }
         }
 
-        console.log("[V16] Generating virtual try-on with Stable Diffusion...");
-        
-        // 2. Generate VTO Image (Keep existing logic but improve prompt if possible using analytics?)
-        // For now keeping usage of SD 2.1 as verified working
-        const sdPrompt = `professional fashion photography, full body portrait, person wearing stylish modern clothing, high quality fashion shoot, natural lighting, studio quality, detailed fabric texture, realistic, 4k, photorealistic`;
+        // 2. Generate VTO Image
+        console.log("[V18-REPLICATE] Starting High-Fidelity VTO Pipeline...");
 
         let generatedImageUrl = userImageBase64;
 
+        // --- ENGINE 1: REPLICATE (PRIMARY) ---
+        if (replicate && REPLICATE_API_TOKEN) {
+            try {
+                console.log("[V18-REPLICATE] Using cuuupid/idm-vton on Replicate...");
+                
+                // Cleanup user base64 header if present
+                const userBase64Clean = userImageBase64.replace(/^data:image\/\w+;base64,/, "");
+                
+                // Construct a highly descriptive prompt for the garment
+                const garmentDescription = `A ${analyticsData?.productAnalysis?.mainColors?.join(", ") || "fashionable"} ${analyticsData?.productAnalysis?.style || "garment"} suitable for ${analyticsData?.productAnalysis?.occasion || "any occasion"}. Please transfer this exact garment onto the person in the user image, preserving the person's identity and original background.`;
+                
+                console.log("[V18-REPLICATE] Using optimized prompt:", garmentDescription);
+
+                // Run the model
+                const output = await replicate.run(
+                    "cuuupid/idm-vton:c871bb9b0ad830786889623f198a6e40f5d412d951151bb2f4aa45c4302b5a1b",
+                    {
+                        input: {
+                            human_img: `data:image/jpeg;base64,${userBase64Clean}`,
+                            garm_img: productImageUrl,
+                            garment_des: garmentDescription,
+                            is_checked: true,
+                            is_checked_det_lib: false,
+                            mask_only: false,
+                            num_inference_steps: 30
+                        }
+                    }
+                );
+
+                if (output && Array.isArray(output) && output.length > 0) {
+                    generatedImageUrl = output[0];
+                    console.log("[V18-REPLICATE] Generation successful!");
+                    
+                    return res.json({
+                        success: true,
+                        generatedImage: generatedImageUrl,
+                        advice: stylingAdvice,
+                        analytics: analyticsData
+                    });
+                } else if (output && typeof output === 'string') {
+                    generatedImageUrl = output;
+                     console.log("[V18-REPLICATE] Generation successful (string output)!");
+                     return res.json({
+                        success: true,
+                        generatedImage: generatedImageUrl,
+                        advice: stylingAdvice,
+                        analytics: analyticsData
+                    });
+                }
+            } catch (replicateError) {
+                console.error("[V18-REPLICATE] Error:", replicateError.message);
+                console.log("Falling back to Imagen/SDXL...");
+            }
+        }
+
+        // --- ENGINE 2: GOOGLE IMAGEN (FALLBACK) ---
+        let imagenPrompt = "";
+
+        // Step 2a: Generate a SUPER detailed prompt using Gemini Vision
+        // This acts as the "Nano Banana" style transfer brain
         try {
-            const sdResponse = await axios.post(
-                "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1",
+             console.log("[V18-BANANA] Analyzing images for creating exact prompt...");
+             const promptModel = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+             
+             // Fetch product image to base64
+             const productResp = await axios.get(productImageUrl, { responseType: 'arraybuffer' });
+             const productBase64 = Buffer.from(productResp.data).toString('base64');
+             const userBase64Clean = userImageBase64.replace(/^data:image\/\w+;base64,/, "");
+
+             const analysisPrompt = `
+             You are an expert fashion photographer and AI prompt engineer.
+             I need to generate a "Virtual Try-On" image.
+             
+             Input 1: User Photo.
+             Input 2: Garment Photo.
+
+             Task: Describe a new image of the USER wearing the GARMENT.
+             
+             CRITICAL RULES for the Description:
+             1. Subject: Describe the users physical traits (Face, Hair, Body Shape, Skin Tone, Pose, Lighting in original photo) in EXTREME detail. The goal is to preserve identity.
+             2. Apparel: Describe the Garment (Color, Texture, Neckline, Sleeves, Logo/Pattern) in EXTREME detail.
+             3. Composition: Keep the background and lighting of the User Photo.
+             4. Output: Write a single, highly detailed prompt for an image generator (like Imagen 3) that will recreate this exact scene but with the user wearing the new garment.
+             5. Start the prompt with: "A photorealistic 4k image of..."
+             
+             Output ONLY the prompt text. Do not add any conversational text.
+             `;
+
+             const analysisResult = await promptModel.generateContent([
+                 analysisPrompt,
+                 { inlineData: { data: userBase64Clean, mimeType: "image/jpeg" } },
+                 { inlineData: { data: productBase64, mimeType: "image/jpeg" } }
+             ]);
+
+             imagenPrompt = analysisResult.response.text().trim();
+             console.log("[V18-BANANA] Generated High-Fidelity Prompt:", imagenPrompt);
+
+        } catch (promptError) {
+            console.error("[V18-BANANA] Prompt Generation Failed:", promptError.message);
+            // Fallback prompt
+            imagenPrompt = `A photorealistic 4k image of a person wearing a ${analyticsData?.productAnalysis?.style || 'stylish top'}. 
+            The person has ${analyticsData?.userAnalysis?.skinTone || 'medium'} skin and ${analyticsData?.userAnalysis?.bodyShape || 'average'} build.
+            High quality fashion photography, detailed texture, natural lighting.`;
+        }
+
+        // Step 2b: Generate Image with Imagen 3
+        try {
+            console.log("[V18-BANANA] Calling Imagen 3 with detailed prompt...");
+            
+            const imagenResponse = await axios.post(
+                `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${GEMINI_API_KEY}`,
                 {
-                    inputs: sdPrompt,
-                    options: { 
-                        wait_for_model: true,
-                        use_cache: false
+                    instances: [
+                        {
+                            prompt: imagenPrompt
+                        }
+                    ],
+                    parameters: {
+                        sampleCount: 1,
+                        aspectRatio: "3:4",
+                        personGeneration: "allow_adult"
                     }
                 },
                 {
                     headers: {
-                        "Authorization": `Bearer ${HUGGINGFACE_API_KEY}`,
                         "Content-Type": "application/json"
-                    },
-                    responseType: 'arraybuffer',
-                    timeout: 90000
+                    }
                 }
             );
 
-            const imageBase64 = Buffer.from(sdResponse.data).toString('base64');
-            generatedImageUrl = `data:image/jpeg;base64,${imageBase64}`;
-            console.log("[V16] VTO generation successful!");
+            if(imagenResponse.data.predictions && imagenResponse.data.predictions.length > 0) {
+                 const imageBytes = imagenResponse.data.predictions[0].bytesBase64Encoded;
+                 generatedImageUrl = `data:image/jpeg;base64,${imageBytes}`;
+                 console.log("[V18-BANANA] Imagen generation successful!");
+            } else {
+                throw new Error("No predictions returned from Imagen");
+            }
 
-        } catch (sdError) {
-            console.error("[V16] Stable Diffusion Error:", sdError.message);
-            // Fallback to original image if generation fails
+        } catch (imagenError) {
+             console.error("[V18-BANANA] Imagen Error:", imagenError.response?.data || imagenError.message);
+             console.log("Falling back to Stable Diffusion...");
+             
+             // Fallback to SD if Imagen fails (e.g. quota or region issues)
+             try {
+                // Using SDXL as a high-quality fallback
+                const sdResponse = await axios.post(
+                    "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
+                    {
+                        inputs: imagenPrompt,
+                        options: { wait_for_model: true, use_cache: false }
+                    },
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${HUGGINGFACE_API_KEY}`,
+                            "Content-Type": "application/json"
+                        },
+                        responseType: 'arraybuffer',
+                        timeout: 90000
+                    }
+                );
+                const imageBase64 = Buffer.from(sdResponse.data).toString('base64');
+                generatedImageUrl = `data:image/jpeg;base64,${imageBase64}`;
+                console.log("[V18-BANANA] Fallback SDXL generation successful!");
+             } catch(sdError) {
+                 console.error("[V18-BANANA] Fallback SDXL Error:", sdError.message);
+                 if(sdError.response?.status === 410 || sdError.response?.status === 404) {
+                    console.log("[V18-BANANA] SDXL unavailable, trying Turbo...");
+                    try {
+                        const turboResponse = await axios.post(
+                        "https://api-inference.huggingface.co/models/stabilityai/sdxl-turbo",
+                        {
+                            inputs: imagenPrompt,
+                            options: { wait_for_model: true, use_cache: false }
+                        },
+                        {
+                            headers: {
+                                "Authorization": `Bearer ${HUGGINGFACE_API_KEY}`,
+                                "Content-Type": "application/json"
+                            },
+                        responseType: 'arraybuffer',
+                        timeout: 90000
+                    }
+                );
+                const imageBase64 = Buffer.from(turboResponse.data).toString('base64');
+                generatedImageUrl = `data:image/jpeg;base64,${imageBase64}`;
+                console.log("[V18-BANANA] Final Fallback SDXL-Turbo successful!");
+                    } catch (turboError) {
+                        console.error("[V18-BANANA] All VTO attempts failed.");
+                    }
+                 }
+             }
         }
 
         res.json({
@@ -295,5 +457,18 @@ export const getSuggestedQuestions = async (req, res) => {
             success: true,
             questions: ["Show me new arrivals", "Check my order status", "Contact support"]
         });
+    }
+};
+
+export const checkLimit = async (req, res) => {
+    try {
+        // Simple health/limit check for frontend
+        res.json({
+            success: true,
+            message: "AI Service is online",
+            limitRemaining: "Unlimited" // Mock for now
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 };

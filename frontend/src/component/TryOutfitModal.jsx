@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ReactDOM from "react-dom";
 import { IoClose, IoCloudUploadOutline, IoSparkles } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { generateTryOnResult } from "../utils/huggingfaceService";
@@ -46,8 +47,8 @@ function TryOutfitModal({ isOpen, onClose, productImageUrl }) {
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-[60] flex items-start justify-center p-4 pt-50 bg-black/60 backdrop-blur-sm animate-fade-in">
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
       <div className="bg-white w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]">
         
         {/* Left Side: Input/Upload */}
@@ -199,7 +200,8 @@ function TryOutfitModal({ isOpen, onClose, productImageUrl }) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

@@ -65,9 +65,9 @@ function ProductDetail() {
     <div className="pt-24 md:pt-32 transition-all duration-500 container mx-auto px-4 pb-20 animate-fade-in">
       {/* Product Data */}
       <div className="flex gap-12 lg:gap-20 flex-col md:flex-row items-start">
-        {/* Product Images Gallery */}
+        {/* Product Images Gallery - Normalized size */}
         <div className="flex-1 flex flex-col-reverse md:flex-row gap-4 w-full">
-          <div className="flex md:flex-col overflow-x-auto md:overflow-y-auto gap-3 md:w-24 w-full scrollbar-hide">
+          <div className="flex md:flex-col overflow-x-auto md:overflow-y-auto gap-3 md:w-20 w-full scrollbar-hide">
             {images.map((img, index) => (
               <div
                 key={index}
@@ -75,9 +75,9 @@ function ProductDetail() {
                   setMainImage(img);
                   setCurrentIndex(index);
                 }}
-                className={`relative flex-shrink-0 w-20 md:w-full aspect-square rounded-xl overflow-hidden cursor-pointer border-2 transition-all duration-200 ${
+                className={`relative flex-shrink-0 w-16 md:w-20 aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all duration-200 ${
                   img === mainImage
-                    ? "border-primary shadow-md scale-95"
+                    ? "border-primary shadow-md"
                     : "border-transparent hover:border-gray-300"
                 }`}
               >
@@ -90,33 +90,33 @@ function ProductDetail() {
             ))}
           </div>
 
-          <div className="relative flex-1 max-h-[70vh] aspect-[4/5] rounded-3xl overflow-hidden bg-gray-50 border border-gray-100 group shadow-sm flex items-center justify-center">
+          <div className="relative flex-1 max-h-[60vh] aspect-[4/5] rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 group shadow-sm flex items-center justify-center">
             <img
               src={mainImage}
-              className="w-full h-full object-contain transition-transform duration-700 md:group-hover:scale-105"
+              className="w-full h-full object-contain"
               alt={productData.name}
             />
 
-            {/* Navigation Arrows */}
+            {/* Navigation Arrows - Normalized */}
             {images.length > 1 && (
               <>
                 <button
                   onClick={handlePrevImage}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-white"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-white"
                 >
-                  <IoChevronBackOutline className="w-6 h-6" />
+                  <IoChevronBackOutline className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleNextImage}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-white"
                 >
-                  <IoChevronForwardOutline className="w-6 h-6" />
+                  <IoChevronForwardOutline className="w-4 h-4" />
                 </button>
               </>
             )}
 
-            {/* Counter */}
-            <div className="absolute bottom-6 right-6 px-4 py-2 bg-black/50 backdrop-blur-md text-white text-xs font-bold rounded-full tracking-widest uppercase">
+            {/* Counter - Normalized */}
+            <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-black/50 backdrop-blur-md text-white text-xs font-medium rounded-full">
               {currentIndex + 1} / {images.length}
             </div>
           </div>
@@ -125,73 +125,77 @@ function ProductDetail() {
         {/* Product Info */}
         <div className="flex-1 w-full lg:max-w-xl">
           <div className="space-y-2">
-            <span className="text-primary text-xs font-bold uppercase tracking-[0.2em]">
+            <span className="text-primary text-xs font-medium uppercase tracking-wider">
               New Arrival
             </span>
-            <h1 className="font-bold text-3xl md:text-4xl text-gray-900 leading-tight tracking-tight">
+            <h1 className="font-bold text-2xl md:text-3xl text-gray-900 leading-tight">
               {productData.name}
             </h1>
           </div>
 
-          <div className="flex items-center gap-4 mt-6">
-            <div className="flex items-center gap-1 text-yellow-400">
-              <FaStar className="text-sm" />
-              <FaStar className="text-sm" />
-              <FaStar className="text-sm" />
-              <FaStar className="text-sm" />
-              <FaStarHalfAlt className="text-sm" />
+          <div className="flex items-center gap-3 mt-4">
+            <div className="flex items-center gap-0.5 text-yellow-400">
+              <FaStar className="text-xs" />
+              <FaStar className="text-xs" />
+              <FaStar className="text-xs" />
+              <FaStar className="text-xs" />
+              <FaStarHalfAlt className="text-xs" />
             </div>
-            <span className="text-gray-400 text-sm font-medium">|</span>
-            <p className="text-gray-500 text-sm font-medium hover:text-gray-900 cursor-pointer transition-colors">
+            <span className="text-gray-300 text-sm">|</span>
+            <p className="text-gray-500 text-sm hover:text-gray-900 cursor-pointer transition-colors">
               122 Customer Reviews
             </p>
           </div>
 
-          <div className="mt-8 flex items-baseline gap-4">
-            <p className="text-4xl font-bold text-gray-900 tracking-tighter">
+          <div className="mt-6 flex items-baseline gap-3">
+            <p className="text-3xl font-bold text-gray-900">
               {currency}
               {productData.price}
             </p>
-            <p className="text-lg text-gray-400 line-through font-medium">
+            <p className="text-base text-gray-400 line-through">
               {currency}
               {(productData.price * 1.2).toFixed(0)}
             </p>
           </div>
 
-          <p className="mt-8 text-gray-600 leading-relaxed text-lg border-l-4 border-primary pl-6 py-2">
-            {productData.description}
+          {/* Description - Shortened/Normalized */}
+          <p className="mt-6 text-gray-600 leading-relaxed border-l-2 border-primary pl-4 py-1 text-base">
+            Experience the perfect blend of style, comfort, and durability with
+            this premium {productData.name}. Meticulously crafted using
+            high-quality materials, this piece is designed to elevate your
+            everyday ensemble.
           </p>
 
           {productData.subCategory === "TopWear" && (
-            <div className="mt-8">
+            <div className="mt-6">
               <button
                 onClick={() => setIsTryOutfitOpen(true)}
-                className="w-full sm:w-auto bg-gradient-to-r from-primary to-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all flex items-center justify-center gap-3 border-2 border-primary/20"
+                className="w-full sm:w-auto bg-gradient-to-r from-primary to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold uppercase tracking-wide shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all flex items-center justify-center gap-2 text-sm"
               >
-                <IoSparkles className="text-xl animate-pulse" />
+                <IoSparkles className="text-base" />
                 Try This Outfit (LookSync AI)
               </button>
               {/* Product Specific Chatbot */}
-              <button 
-                  onClick={() => openChat('product', productData)}
-                  className="w-full sm:w-auto bg-gray-100 text-gray-800 px-8 py-3 rounded-2xl font-bold uppercase tracking-widest shadow-sm hover:bg-gray-200 transition-all flex items-center justify-center gap-3 border border-gray-200 mt-4"
+              <button
+                onClick={() => openChat("product", productData)}
+                className="w-full sm:w-auto bg-gray-100 text-gray-800 px-6 py-2.5 rounded-xl font-semibold uppercase tracking-wide shadow-sm hover:bg-gray-200 transition-all flex items-center justify-center gap-2 text-sm mt-3"
               >
-                  <IoSparkles className="text-primary" />
-                  Ask AI Assistant
+                <IoSparkles className="text-primary text-base" />
+                Ask AI Assistant
               </button>
             </div>
           )}
 
-          <div className="flex flex-col gap-6 my-10">
+          <div className="flex flex-col gap-4 my-8">
             <div className="flex items-center justify-between">
-              <p className="text-gray-900 font-bold uppercase tracking-widest text-xs">
+              <p className="text-gray-900 font-semibold uppercase tracking-wide text-xs">
                 Select Size
               </p>
-              <button className="text-primary text-xs font-bold hover:underline">
+              <button className="text-primary text-xs hover:underline">
                 Size Guide
               </button>
             </div>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-2">
               {(() => {
                 let sizesArray = [];
                 if (Array.isArray(productData.sizes)) {
@@ -209,9 +213,9 @@ function ProductDetail() {
                     <button
                       key={index}
                       onClick={() => setSize(item)}
-                      className={`min-w-[4rem] h-12 flex items-center justify-center rounded-xl font-bold border-2 transition-all duration-300 relative overflow-hidden ${
+                      className={`min-w-[3.5rem] h-10 flex items-center justify-center rounded-lg font-medium border-2 transition-all duration-300 ${
                         item === size
-                          ? "border-primary bg-primary text-white shadow-xl scale-105"
+                          ? "border-primary bg-primary text-white shadow-md"
                           : "border-gray-100 bg-gray-50 text-gray-600 hover:border-gray-200 hover:bg-white"
                       }`}
                     >
@@ -219,7 +223,7 @@ function ProductDetail() {
                     </button>
                   ))
                 ) : (
-                  <p className="text-gray-400 text-sm font-medium italic">
+                  <p className="text-gray-400 text-sm italic">
                     No sizes available for this product
                   </p>
                 );
@@ -227,25 +231,25 @@ function ProductDetail() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 mt-10">
+          <div className="flex flex-col sm:flex-row gap-3 mt-6">
             <button
               onClick={() =>
                 userData ? addtoCart(productData._id, size) : navigate("/login")
               }
-              className="flex-1 bg-gray-900 text-white px-8 py-5 text-sm font-black uppercase tracking-widest rounded-2xl shadow-2xl hover:bg-primary transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+              className="flex-1 bg-gray-900 text-white px-6 py-4 text-sm font-semibold uppercase tracking-wide rounded-xl shadow-lg hover:bg-primary transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
               {loading ? (
                 <Loading />
               ) : (
                 <>
-                  <IoCartOutline className="text-xl" />
+                  <IoCartOutline className="text-lg" />
                   Add to Cart
                 </>
               )}
             </button>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               "100% Original Product",
               "Cash on Delivery Available",
@@ -254,9 +258,9 @@ function ProductDetail() {
             ].map((text, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 text-sm text-gray-500 font-medium bg-gray-50/50 p-4 rounded-xl border border-gray-100/50"
+                className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50/50 p-3 rounded-lg border border-gray-100/50"
               >
-                <IoCheckmarkCircleOutline className="text-primary text-xl" />
+                <IoCheckmarkCircleOutline className="text-primary text-base" />
                 {text}
               </div>
             ))}
@@ -265,37 +269,35 @@ function ProductDetail() {
       </div>
 
       {/* Description & Reviews Section */}
-      <div className="mt-32">
-        <div className="flex border-b border-gray-100 gap-8 mb-8">
-          <button className="relative py-4 text-sm font-black uppercase tracking-widest text-gray-900">
+      {/* <div className="mt-20">
+        <div className="flex border-b border-gray-100 gap-6 mb-6">
+          <button className="relative py-3 text-xs font-semibold uppercase tracking-wide text-gray-900">
             Description
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-primary rounded-full"></div>
+            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full"></div>
           </button>
-          <button className="py-4 text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors">
+          <button className="py-3 text-xs font-medium uppercase tracking-wide text-gray-400 hover:text-gray-900 transition-colors">
             Reviews (122)
           </button>
         </div>
-        <div className="bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-sm leading-relaxed text-gray-600 text-lg space-y-6">
-          <p>
+        <div className="bg-white rounded-2xl p-6 md:p-8 border border-gray-100 shadow-sm leading-relaxed text-gray-600 space-y-4">
+          <p className="text-base">
             Experience the perfect blend of style, comfort, and durability with
             this premium {productData.name}. Meticulously crafted using
             high-quality materials, this piece is designed to elevate your
             everyday ensemble while providing unmatched versatility.
           </p>
-          <p>
+          <p className="text-base">
             Whether you're heading to a casual brunch or an evening gathering,
             its timeless silhouette and attention to detail ensure you make a
-            sophisticated statement. Our commitment to quality means every
-            stitch is placed with precision, promising a product that lasts as
-            long as your memories of it.
+            sophisticated statement.
           </p>
         </div>
-      </div>
+      </div> */}
 
-      {/* Related Products */}
-      <div className="mt-32">
-        <Title text1={"YOU MIGHT"} text2={"ALSO LIKE"} />
-        <div className="mt-10">
+      {/* Related Products - Renamed to FashionIQ Recommender */}
+      <div className="mt-20">
+        <Title text1={"FashionIQ"} text2={"Recommender"} />
+        <div className="mt-8">
           <RelatedProduct
             category={productData.category}
             subCategory={productData.subCategory}
