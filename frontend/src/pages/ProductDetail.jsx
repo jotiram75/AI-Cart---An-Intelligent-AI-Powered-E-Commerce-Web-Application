@@ -15,12 +15,15 @@ import Title from "../component/Title";
 import TryOutfitModal from "../component/TryOutfitModal";
 import { IoSparkles } from "react-icons/io5";
 import { useChat } from "../context/ChatContext";
+import { authDataContext } from "../context/AuthContext";
+import ReviewInsights from "../component/ReviewInsights";
 
 function ProductDetail() {
   const { productId } = useParams();
   const { products, currency, addtoCart, loading } =
     useContext(shopDataContext);
   const { userData } = useContext(userDataContext);
+  const { serverUrl } = useContext(authDataContext);
   const navigate = useNavigate();
   const [productData, setProductData] = useState(false);
 
@@ -207,7 +210,7 @@ function ProductDetail() {
                 } else if (typeof productData.sizes === "string") {
                   try {
                     sizesArray = JSON.parse(productData.sizes);
-                  } catch (e) {
+                  } catch {
                     sizesArray = [];
                   }
                 }
@@ -253,7 +256,7 @@ function ProductDetail() {
             </button>
           </div>
 
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               "100% Original Product",
               "Cash on Delivery Available",
@@ -268,7 +271,7 @@ function ProductDetail() {
                 {text}
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -299,6 +302,12 @@ function ProductDetail() {
       </div> */}
 
       {/* Related Products - Renamed to FashionIQ Recommender */}
+      <ReviewInsights
+        serverUrl={serverUrl}
+        productId={productData._id}
+        canReview={Boolean(userData)}
+      />
+
       <div className="mt-20">
         <Title text1={"FashionIQ"} text2={"Recommender"} />
         <div className="mt-8">

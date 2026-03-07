@@ -132,7 +132,7 @@ function Nav() {
             </ul>
 
             {/* Right Side Icons */}
-            <div className="flex items-center gap-2 md:gap-6">
+            <div className="flex items-center gap-1.45 md:gap-6">
               {/* Search Icon */}
               <button
                 onClick={() => {

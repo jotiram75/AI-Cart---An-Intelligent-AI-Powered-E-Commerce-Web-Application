@@ -12,6 +12,7 @@ import {
   visualSearchByImage,
 } from "../controller/visualSearchController.js";
 import { recommendSizeController } from "../controller/sizeRecommendationController.js";
+import { analyzeReviewPayload } from "../controller/reviewAnalysisController.js";
 
 const aiRouter = express.Router();
 const uploadMemory = multer({
@@ -42,5 +43,8 @@ aiRouter.post(
 
 // AI Size Recommendation
 aiRouter.post("/size-recommend", recommendSizeController);
+
+// AI Review Sentiment Analyzer
+aiRouter.post("/reviews/analyze", analyzeReviewPayload);
 
 export default aiRouter;

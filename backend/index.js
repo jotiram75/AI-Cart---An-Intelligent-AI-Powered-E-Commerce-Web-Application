@@ -10,6 +10,7 @@ import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import vendorRoutes from "./routes/vendorRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
 
 let port = process.env.PORT || 6000;
 
@@ -70,6 +71,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/ai", aiRoutes);
+app.use("/api/review", reviewRoutes);
 app.use("/api/vendor", vendorRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
