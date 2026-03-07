@@ -1,5 +1,14 @@
 import React, { useContext, useState, useEffect } from "react";
-import { IoSearchOutline, IoCartOutline, IoPersonOutline, IoMenuOutline, IoCloseOutline, IoChevronDownOutline, IoHeartOutline } from "react-icons/io5";
+import {
+  IoSearchOutline,
+  IoCartOutline,
+  IoPersonOutline,
+  IoMenuOutline,
+  IoCloseOutline,
+  IoChevronDownOutline,
+  IoHeartOutline,
+  IoCameraOutline,
+} from "react-icons/io5";
 import { userDataContext } from "../context/UserContext";
 import { shopDataContext } from "../context/ShopContext";
 import { authDataContext } from "../context/AuthContext";
@@ -9,7 +18,14 @@ import axios from "axios";
 function Nav() {
   const { userData, setUserData } = useContext(userDataContext);
   const { serverUrl } = useContext(authDataContext);
-  const { showSearch, setShowSearch, search, setSearch, getCartCount, wishlistItems } = useContext(shopDataContext);
+  const {
+    showSearch,
+    setShowSearch,
+    search,
+    setSearch,
+    getCartCount,
+    wishlistItems,
+  } = useContext(shopDataContext);
   const [showProfile, setShowProfile] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -33,18 +49,20 @@ function Nav() {
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (showMobileMenu) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [showMobileMenu]);
 
   const handleLogout = async () => {
     try {
-      await axios.get(serverUrl + "/api/auth/logout", { withCredentials: true });
+      await axios.get(serverUrl + "/api/auth/logout", {
+        withCredentials: true,
+      });
       setUserData(null);
       setShowProfile(false);
       navigate("/login");
@@ -58,18 +76,32 @@ function Nav() {
   return (
     <>
       {/* Main Navigation */}
-      <nav className={`fixed w-full z-50 transition-all duration-300 ease-in-out ${
-        isScrolled || !isHome ? "bg-white shadow-md" : "bg-white md:bg-transparent"
-      }`}>
+      <nav
+        className={`fixed w-full z-50 transition-all duration-300 ease-in-out ${
+          isScrolled || !isHome
+            ? "bg-white shadow-md"
+            : "bg-white md:bg-transparent"
+        }`}
+      >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
-            
             {/* Logo */}
-            <div className="flex items-center gap-1 sm:gap-2 cursor-pointer z-50" onClick={() => navigate("/")}>
-              <img src="/logo.png" alt="AICart Logo" className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10" />
-              <h1 className={`text-lg sm:text-xl md:text-2xl font-bold tracking-wide font-heading transition-colors ${
-                isScrolled || !isHome ? "text-gray-900" : "text-gray-900 md:text-white"
-              }`}>
+            <div
+              className="flex items-center gap-1 sm:gap-2 cursor-pointer z-50"
+              onClick={() => navigate("/")}
+            >
+              <img
+                src="/logo.png"
+                alt="AICart Logo"
+                className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10"
+              />
+              <h1
+                className={`text-lg sm:text-xl md:text-2xl font-bold tracking-wide font-heading transition-colors ${
+                  isScrolled || !isHome
+                    ? "text-gray-900"
+                    : "text-gray-900 md:text-white"
+                }`}
+              >
                 AICART
               </h1>
             </div>
@@ -77,20 +109,21 @@ function Nav() {
             {/* Desktop Menu */}
             <ul className="hidden md:flex items-center gap-8">
               {[
-                { label: 'Home', path: '/' },
-                { label: 'Shop', path: '/collection' },
-                { label: 'About', path: '/about' },
-                { label: 'Contact', path: '/contact' }
+                { label: "Home", path: "/" },
+                { label: "Shop", path: "/collection" },
+                { label: "Visual Search", path: "/visual-search" },
+                { label: "About", path: "/about" },
+                { label: "Contact", path: "/contact" },
               ].map((item) => (
                 <li
                   key={item.path}
                   onClick={() => navigate(item.path)}
                   className={`text-sm font-semibold uppercase tracking-wider cursor-pointer transition-colors ${
-                    location.pathname === item.path 
-                      ? 'text-primary' 
-                      : isScrolled || !isHome 
-                        ? 'text-gray-700 hover:text-primary' 
-                        : 'text-gray-900 md:text-white hover:text-primary'
+                    location.pathname === item.path
+                      ? "text-primary"
+                      : isScrolled || !isHome
+                        ? "text-gray-700 hover:text-primary"
+                        : "text-gray-900 md:text-white hover:text-primary"
                   }`}
                 >
                   {item.label}
@@ -107,18 +140,36 @@ function Nav() {
                   navigate("/collection");
                 }}
                 className={`p-1 sm:p-2 transition-colors ${
-                  isScrolled || !isHome ? "text-gray-700 hover:text-primary" : "text-gray-900 md:text-white hover:text-primary"
+                  isScrolled || !isHome
+                    ? "text-gray-700 hover:text-primary"
+                    : "text-gray-900 md:text-white hover:text-primary"
                 }`}
                 aria-label="Search"
               >
                 <IoSearchOutline className="w-5 h-5 md:w-6 md:h-6" />
               </button>
 
+              {/* Visual Search Icon */}
+              <button
+                onClick={() => navigate("/visual-search")}
+                className={`p-1 sm:p-2 transition-colors ${
+                  isScrolled || !isHome
+                    ? "text-gray-700 hover:text-primary"
+                    : "text-gray-900 md:text-white hover:text-primary"
+                }`}
+                aria-label="Visual search"
+                title="AI Visual Search"
+              >
+                <IoCameraOutline className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+
               {/* Wishlist Icon */}
               <button
                 onClick={() => navigate("/wishlist")}
                 className={`relative p-1 sm:p-2 transition-colors ${
-                  isScrolled || !isHome ? "text-gray-700 hover:text-primary" : "text-gray-900 md:text-white hover:text-primary"
+                  isScrolled || !isHome
+                    ? "text-gray-700 hover:text-primary"
+                    : "text-gray-900 md:text-white hover:text-primary"
                 }`}
                 aria-label="Wishlist"
               >
@@ -134,7 +185,9 @@ function Nav() {
               <button
                 onClick={() => navigate("/cart")}
                 className={`relative p-1 sm:p-2 transition-colors ${
-                  isScrolled || !isHome ? "text-gray-700 hover:text-primary" : "text-gray-900 md:text-white hover:text-primary"
+                  isScrolled || !isHome
+                    ? "text-gray-700 hover:text-primary"
+                    : "text-gray-900 md:text-white hover:text-primary"
                 }`}
                 aria-label="Cart"
               >
@@ -157,19 +210,23 @@ function Nav() {
                     <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold group-hover:bg-opacity-90 transition-all">
                       {userData.name.charAt(0).toUpperCase()}
                     </div>
-                    <IoChevronDownOutline 
+                    <IoChevronDownOutline
                       className={`w-4 h-4 transition-transform duration-200 ${
                         showProfile ? "rotate-180" : ""
                       } ${
-                        isScrolled || !isHome ? "text-gray-700" : "text-gray-900 md:text-white"
-                      }`} 
+                        isScrolled || !isHome
+                          ? "text-gray-700"
+                          : "text-gray-900 md:text-white"
+                      }`}
                     />
                   </button>
                 ) : (
                   <button
                     onClick={() => navigate("/login")}
                     className={`p-1 sm:p-2 transition-colors ${
-                      isScrolled || !isHome ? "text-gray-700 hover:text-primary" : "text-gray-900 md:text-white hover:text-primary"
+                      isScrolled || !isHome
+                        ? "text-gray-700 hover:text-primary"
+                        : "text-gray-900 md:text-white hover:text-primary"
                     }`}
                     aria-label="Login"
                   >
@@ -181,7 +238,10 @@ function Nav() {
                 {showProfile && userData && (
                   <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 animate-fade-in">
                     <div className="px-4 py-3 text-sm text-gray-500 border-b border-gray-100 bg-gray-50">
-                      Hello, <span className="font-semibold text-gray-900">{userData.name}</span>
+                      Hello,{" "}
+                      <span className="font-semibold text-gray-900">
+                        {userData.name}
+                      </span>
                     </div>
                     <button
                       onClick={() => {
@@ -203,18 +263,20 @@ function Nav() {
                 )}
               </div>
 
-                <button
-                   onClick={() => navigate("/become-seller")}
-                   className="hidden md:flex items-center gap-2 border border-gray-300 text-primary px-3 py-1.5 rounded-md text-sm font-bold tracking-wide hover:bg-primary hover:text-white transition-all duration-300 shadow-sm hover:shadow-md"
-                 >
-                   <span className="text-lg">🏪</span> BECOME SELLER
-                 </button>
+              <button
+                onClick={() => navigate("/become-seller")}
+                className="hidden md:flex items-center gap-2 border border-gray-300 text-primary px-3 py-1.5 rounded-md text-sm font-bold tracking-wide hover:bg-primary hover:text-white transition-all duration-300 shadow-sm hover:shadow-md"
+              >
+                <span className="text-lg">🏪</span> BECOME SELLER
+              </button>
 
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
                 className={`md:hidden p-1 sm:p-2 transition-colors ${
-                  isScrolled || !isHome ? "text-gray-700" : "text-gray-900 md:text-white"
+                  isScrolled || !isHome
+                    ? "text-gray-700"
+                    : "text-gray-900 md:text-white"
                 }`}
                 aria-label="Menu"
               >
@@ -232,22 +294,26 @@ function Nav() {
       {/* Mobile Menu Overlay */}
       {showMobileMenu && (
         <div className="fixed inset-0 z-40 md:hidden">
-          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setShowMobileMenu(false)} />
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50"
+            onClick={() => setShowMobileMenu(false)}
+          />
           <div className="fixed top-16 right-0 bottom-0 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
             <nav className="flex flex-col py-6">
               {[
-                { label: 'Home', path: '/' },
-                { label: 'Shop', path: '/collection' },
-                { label: 'About', path: '/about' },
-                { label: 'Contact', path: '/contact' }
+                { label: "Home", path: "/" },
+                { label: "Shop", path: "/collection" },
+                { label: "Visual Search", path: "/visual-search" },
+                { label: "About", path: "/about" },
+                { label: "Contact", path: "/contact" },
               ].map((item) => (
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
                   className={`text-left px-6 py-4 text-base font-semibold uppercase tracking-wider transition-colors ${
                     location.pathname === item.path
-                      ? 'text-primary bg-gray-50'
-                      : 'text-gray-700 hover:text-primary hover:bg-gray-50'
+                      ? "text-primary bg-gray-50"
+                      : "text-gray-700 hover:text-primary hover:bg-gray-50"
                   }`}
                 >
                   {item.label}

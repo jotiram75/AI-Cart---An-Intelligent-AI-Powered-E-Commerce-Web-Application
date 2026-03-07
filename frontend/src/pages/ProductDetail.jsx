@@ -191,8 +191,12 @@ function ProductDetail() {
               <p className="text-gray-900 font-semibold uppercase tracking-wide text-xs">
                 Select Size
               </p>
-              <button className="text-primary text-xs hover:underline">
-                Size Guide
+              <button
+                className="text-primary text-xs hover:underline"
+                onClick={() => navigate("/size-guide")}
+                type="button"
+              >
+                AI Size Finder
               </button>
             </div>
             <div className="flex flex-wrap gap-2">

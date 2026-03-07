@@ -34,7 +34,7 @@ function Footer() {
       { label: "FAQs", path: "/faqs" },
       { label: "Shipping", path: "/shipping" },
       { label: "Returns", path: "/returns" },
-      { label: "Size Guide", path: "/size-guide" },
+      { label: "AI Size Finder", path: "/size-guide" },
     ],
   };
 

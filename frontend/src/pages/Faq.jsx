@@ -24,7 +24,7 @@ const Faq = () => {
         {
             category: "Product & Sizing",
             items: [
-                { q: "How do I find my size?", a: "Check our Size Guide page for detailed measurements. We also offer AI-powered size recommendations on product pages." },
+                { q: "How do I find my size?", a: "Use our AI Size Finder (height, weight, body type) for a recommended fit, or check the reference size chart for measurements." },
                 { q: "Are your products sustainable?", a: "We are committed to sustainability. Look for our 'Eco-Friendly' tag on product pages." }
             ]
         }
