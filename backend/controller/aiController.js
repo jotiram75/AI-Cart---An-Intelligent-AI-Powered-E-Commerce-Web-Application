@@ -2,6 +2,13 @@ import axios from "axios";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import Replicate from "replicate";
 import { v2 as cloudinary } from "cloudinary";
+import TryOnHistory from "../model/TryOnHistory.js";
+import FormData from "form-data";
+import fs from "fs";
+import path from "path";
+import os from "os";
+
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8001";
 
 const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -271,7 +278,43 @@ export const tryOutfit = async (req, res) => {
     let generationEngine = "none";
     let aiGenerated = false;
 
-    // --- ENGINE 1: GEMINI IMAGE EDIT (PRIMARY FOR FREE-TIER SETUPS) ---
+    // --- ENGINE 0: LOCAL FASTAPI AI SERVICE (PRIMARY) ---
+    try {
+      console.log("[V22-LOCAL-AI] Trying local FastAPI AI service...");
+      
+      // We need to send images as files to FastAPI
+      // 1. Fetch product image as buffer
+      const productResp = await axios.get(productImageUrl, { responseType: 'arraybuffer' });
+      const productBuffer = Buffer.from(productResp.data);
+
+      // 2. Convert user base64 to buffer
+      const userBase64Clean = userImageBase64.replace(/^data:image\/\w+;base64,/, "");
+      const userBuffer = Buffer.from(userBase64Clean, 'base64');
+
+      // 3. Create FormData
+      const formData = new FormData();
+      formData.append('user_image', userBuffer, { filename: 'user.jpg', contentType: 'image/jpeg' });
+      formData.append('product_image', productBuffer, { filename: 'product.jpg', contentType: 'image/jpeg' });
+
+      const aiResponse = await axios.post(`${AI_SERVICE_URL}/try-outfit`, formData, {
+        headers: {
+          ...formData.getHeaders(),
+        },
+        timeout: 120000, // 2 minutes timeout for AI processing
+      });
+
+      if (aiResponse.data && aiResponse.data.success) {
+        generatedImageUrl = aiResponse.data.image;
+        generationEngine = "local-fastapi";
+        aiGenerated = true;
+        console.log("[V22-LOCAL-AI] Local AI generation successful.");
+      }
+    } catch (localAiError) {
+      console.error("[V22-LOCAL-AI] Error calling local AI service:", localAiError.message);
+      console.log("Falling back to Gemini/Replicate...");
+    }
+
+    // --- ENGINE 1: GEMINI IMAGE EDIT (FALLBACK) ---
     if (GEMINI_API_KEY) {
       try {
         console.log("[V21-GEMINI-TRYON] Trying Gemini image editing...");
@@ -320,7 +363,7 @@ export const tryOutfit = async (req, res) => {
 
         // Run the model
         const output = await replicate.run(
-          "cuuupid/idm-vton:0513734a452173b8173e907e3a59d19a36266e55b48528559432bd21c7d7e985",
+          "yisol/idm-vton:c02d9facd68e5a075a363da6493dc2c5fbf9239fb7fd7fe758079d3910bc061a",
           {
             input: {
               human_img: `data:image/jpeg;base64,${userBase64Clean}`,
@@ -437,7 +480,7 @@ export const tryOutfit = async (req, res) => {
         console.log("[V18-BANANA] Calling Imagen 3 with detailed prompt...");
 
         const imagenResponse = await axios.post(
-          `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${GEMINI_API_KEY}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${GEMINI_API_KEY}`,
           {
             instances: [
               {
@@ -568,6 +611,24 @@ export const tryOutfit = async (req, res) => {
       advice: stylingAdvice,
       analytics: analyticsData,
     });
+
+    // --- SAVE TO HISTORY (ASYNC) ---
+    if (aiGenerated && req.body.userId) {
+       try {
+         await TryOnHistory.create({
+           userId: req.body.userId,
+           productId: req.body.productId,
+           userImageUrl: userImageUrlCloud || userImageBase64,
+           productImageUrl: productImageUrlCloud || productImageUrl,
+           generatedImageUrl: generatedImageUrl,
+           generationEngine: generationEngine
+         });
+         console.log("[V22-HISTORY] Try-on history saved.");
+       } catch (historyError) {
+         console.error("[V22-HISTORY] Error saving history:", historyError.message);
+       }
+    }
+
   } catch (error) {
     console.error("[V16] Critical controller error:", error.message);
     res.status(500).json({ success: false, message: error.message });

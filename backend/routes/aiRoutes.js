@@ -14,6 +14,9 @@ import {
 import { recommendSizeController } from "../controller/sizeRecommendationController.js";
 import { analyzeReviewPayload } from "../controller/reviewAnalysisController.js";
 
+import { visualSearch } from "../controller/aiVisualSearchController.js";
+import upload from "../middleware/multer.js";
+
 const aiRouter = express.Router();
 const uploadMemory = multer({
   storage: multer.memoryStorage(),
@@ -32,9 +35,10 @@ aiRouter.get("/suggest-questions", getSuggestedQuestions);
 // AI Visual Search
 aiRouter.post(
   "/visual-search",
-  uploadMemory.single("image"),
-  visualSearchByImage,
+  upload.single("image"),
+  visualSearch,
 );
+
 aiRouter.post(
   "/visual-search/reindex",
   maybeSuperAdminAuth,

@@ -14,6 +14,7 @@ import { shopDataContext } from "../context/ShopContext";
 import { authDataContext } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import VisualSearch from "./VisualSearch";
 
 function Nav() {
   const { userData, setUserData } = useContext(userDataContext);
@@ -29,6 +30,7 @@ function Nav() {
   const [showProfile, setShowProfile] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showVisualSearch, setShowVisualSearch] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -111,13 +113,13 @@ function Nav() {
               {[
                 { label: "Home", path: "/" },
                 { label: "Shop", path: "/collection" },
-                { label: "Visual Search", path: "/visual-search" },
+                { label: "Visual Search", onClick: () => setShowVisualSearch(true) },
                 { label: "About", path: "/about" },
                 { label: "Contact", path: "/contact" },
               ].map((item) => (
                 <li
-                  key={item.path}
-                  onClick={() => navigate(item.path)}
+                  key={item.label}
+                  onClick={item.onClick ? item.onClick : () => navigate(item.path)}
                   className={`text-sm font-semibold uppercase tracking-wider cursor-pointer transition-colors ${
                     location.pathname === item.path
                       ? "text-primary"
@@ -151,7 +153,7 @@ function Nav() {
 
               {/* Visual Search Icon */}
               <button
-                onClick={() => navigate("/visual-search")}
+                onClick={() => setShowVisualSearch(true)}
                 className={`p-1 sm:p-2 transition-colors ${
                   isScrolled || !isHome
                     ? "text-gray-700 hover:text-primary"
@@ -303,13 +305,13 @@ function Nav() {
               {[
                 { label: "Home", path: "/" },
                 { label: "Shop", path: "/collection" },
-                { label: "Visual Search", path: "/visual-search" },
+                { label: "Visual Search", onClick: () => setShowVisualSearch(true) },
                 { label: "About", path: "/about" },
                 { label: "Contact", path: "/contact" },
               ].map((item) => (
                 <button
-                  key={item.path}
-                  onClick={() => navigate(item.path)}
+                  key={item.label}
+                  onClick={item.onClick ? () => { item.onClick(); setShowMobileMenu(false); } : () => navigate(item.path)}
                   className={`text-left px-6 py-4 text-base font-semibold uppercase tracking-wider transition-colors ${
                     location.pathname === item.path
                       ? "text-primary bg-gray-50"
@@ -355,6 +357,7 @@ function Nav() {
           </div>
         </div>
       )}
+      <VisualSearch isOpen={showVisualSearch} onClose={() => setShowVisualSearch(false)} />
     </>
   );
 }

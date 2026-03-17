@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+torch
+torchvision
+faiss-cpu
+pillow
+numpy
+python-multipart
+requests
+pymongo
+python-dotenv
+mediapipe
+gradio_client

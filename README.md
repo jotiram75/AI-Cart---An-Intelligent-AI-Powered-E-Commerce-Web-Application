@@ -13,6 +13,10 @@ AICart is a modern, AI-powered e-commerce platform built with the MERN stack (Mo
   - **Smart Caching**: Database caching for instant responses to common queries.
 
 ### AI Shopping Features
+- **AI Virtual Try-On (VTO)**: Upload a photo of yourself and a garment to generate high-quality photos of yourself wearing the garment.
+  - **FastAPI Microservice**: Handles complex generative model processing.
+  - **Model Integration**: Powered by models like Gemini, Replicate, and Imagen (with fallbacks such as Flux Schnell, SDXL, and SDXL-Turbo for robust performance).
+  - **Storage**: Optimized image storage on Cloudinary.
 - **AI Visual Search**: Upload an image and find visually similar products (captioning + embeddings).
 - **AI Size Finder**: KNN-based size recommendation using height/weight/body type and available sizes.
 - **AI Review Insights (Sentiment + Fake Review Detection)**:
@@ -161,6 +165,27 @@ VITE_SERVER_URL=http://localhost:8000
 This project keeps the AI features practical and production-friendly:
 - Prefer deterministic algorithms where possible (KNN, cosine similarity, heuristics).
 - Use external model APIs (Gemini / HuggingFace) as best-effort and fall back gracefully when unavailable.
+
+### 1) AI Virtual Try-On (VTO)
+
+**What it does**
+- Allows users to upload a photo of themselves and select a garment to see how it looks on them.
+
+**Algorithm / model**
+- Integrates with external APIs (Replicate, Imagen, Google Gemini).
+- Provides fallback to alternative models (Flux Schnell, SDXL, and SDXL-Turbo) in case of model unavailability.
+
+**Where it is implemented**
+- Python Backend Microservice: `backend/ai_vton.py` and `backend/ai_service/main.py`
+- Node Backend: Controller and route integration.
+- Frontend UI: `frontend/src/component/VirtualTryOn.jsx`
+
+**How it works (high level)**
+1. User uploads an image and selects a clothing item on the frontend.
+2. Frontend sends the image and metadata to the Node.js backend (`POST /api/ai/try-on`).
+3. Node backend forwards the request to the Python FastAPI microservice.
+4. FastAPI microservice invokes the generative model, returning the generated image.
+5. Node backend saves the result URL (often via Cloudinary) and returns it to the frontend for display.
 
 ### 1) AI Chatbot (Gemini)
 

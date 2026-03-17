@@ -323,6 +323,8 @@ function ProductDetail() {
         isOpen={isTryOutfitOpen}
         onClose={() => setIsTryOutfitOpen(false)}
         productImageUrl={productData.image1}
+        productId={productData._id}
+        userId={userData?._id}
       />
     </div>
   ) : (

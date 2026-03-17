@@ -155,7 +155,7 @@ const generateLocalTryOnPreview = async (productImageUrl, userImageBase64) => {
  * Generates a virtual try-on styling advice by calling our local backend.
  * This bypasses CORS and secures our Hugging Face API key.
  */
-export const generateTryOnResult = async (productImageUrl, userImageBase64) => {
+export const generateTryOnResult = async (productImageUrl, userImageBase64, productId, userId) => {
   try {
     console.log("Frontend: Checking backend health...");
     const healthRes = await fetch(`${BACKEND_URL}/api/ai/check-limit`).catch(
@@ -180,6 +180,8 @@ export const generateTryOnResult = async (productImageUrl, userImageBase64) => {
       body: JSON.stringify({
         productImageUrl,
         userImageBase64: compressedUserImage,
+        productId,
+        userId,
       }),
     });
 
