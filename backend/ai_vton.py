@@ -3,6 +3,11 @@ import os
 import base64
 import json
 from gradio_client import Client, handle_file
+from dotenv import load_dotenv
+
+# Load environment variables
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(dotenv_path)
 
 def process_vton(product_image_path, user_image_path):
     try:
@@ -11,7 +16,8 @@ def process_vton(product_image_path, user_image_path):
         print(f"DEBUG: Processing user {user_image_path}", file=sys.stderr)
         
         # Initialize the client pointing to a stable IDM-VTON space
-        client = Client("yisol/IDM-VTON", verbose=False)
+        hf_token = os.getenv("HUGGINGFACE_API_KEY")
+        client = Client("yisol/IDM-VTON", token=hf_token, verbose=False)
         
         print(f"DEBUG: Client connected, sending predict...", file=sys.stderr)
         

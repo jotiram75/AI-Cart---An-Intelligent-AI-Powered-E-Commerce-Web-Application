@@ -8,6 +8,12 @@ from vector_db import VectorDB
 import tempfile
 import base64
 from gradio_client import Client, handle_file
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from backend directory
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+load_dotenv(dotenv_path)
 
 
 app = FastAPI()
@@ -16,7 +22,8 @@ db = VectorDB()
 
 # Initialize VTON client once at startup
 try:
-    vton_client = Client("yisol/IDM-VTON", verbose=False)
+    hf_token = os.getenv("HUGGINGFACE_API_KEY")
+    vton_client = Client("yisol/IDM-VTON", token=hf_token, verbose=False)
     print("VTON Client initialized successfully")
 except Exception as e:
     print(f"Warning: VTON Client failed to initialize: {e}")
@@ -83,7 +90,8 @@ async def try_outfit(user_image: UploadFile = File(...), product_image: UploadFi
         # Call IDM-VTON via Gradio Client (as seen in ai_vton.py)
         global vton_client
         if vton_client is None:
-            vton_client = Client("yisol/IDM-VTON", verbose=False)
+            hf_token = os.getenv("HUGGINGFACE_API_KEY")
+            vton_client = Client("yisol/IDM-VTON", token=hf_token, verbose=False)
             
         res_user = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg")
         res_user.close()
