@@ -7,6 +7,9 @@ import FormData from "form-data";
 import fs from "fs";
 import path from "path";
 import os from "os";
+import ChatQuery from "../model/ChatQuery.js";
+import Product from "../model/productModel.js";
+import Review from "../model/reviewModel.js";
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8001";
 
@@ -635,14 +638,24 @@ export const tryOutfit = async (req, res) => {
   }
 };
 
-import ChatQuery from "../model/ChatQuery.js";
 
-// ... existing imports ...
+const classifyQuery = (message) => {
+  const msg = message.toLowerCase();
+  if (/\b(price|cost|how much|rate)\b/.test(msg)) return "price";
+  if (/\b(size|sizes|dimension|fit|measurement)\b/.test(msg)) return "size";
+  if (/\b(stock|available|availability|inventory|quantity)\b/.test(msg))
+    return "stock";
+  if (/\b(description|detail|details|material|fabric|about|what is)\b/.test(msg))
+    return "description";
+  if (/\b(review|reviews|rating|ratings|feedback|customer say)\b/.test(msg))
+    return "reviews";
+  return null;
+};
 
 export const chatWithAI = async (req, res) => {
   try {
     console.log(
-      "[V19-FLASH-LATEST] chatWithAI called - Using gemini-flash-latest",
+      "[V23-HYBRID] chatWithAI called - Hybrid Logic Active",
     );
     const { message, productContext } = req.body;
 
@@ -652,11 +665,56 @@ export const chatWithAI = async (req, res) => {
         .json({ success: false, message: "Message is required" });
     }
 
-    // 1. Check Cache
+    const normalizedQuery = message.trim().toLowerCase();
     const contextType = productContext ? "product" : "global";
     const productName = productContext?.name?.trim().toLowerCase() || null;
-    const normalizedQuery = message.trim().toLowerCase();
+    const productId = productContext?._id || productContext?.id;
 
+    // 1. Hybrid Logic: Query Classification (Source of Truth for Product Details)
+    const classification = classifyQuery(normalizedQuery);
+    if (classification && productId && contextType === "product") {
+      console.log(`[HYBRID] Classified as ${classification} for product ${productId}`);
+      
+      const product = await Product.findById(productId);
+      if (product) {
+        let responseText = "";
+        switch (classification) {
+          case "price":
+            responseText = `The ${product.name} is priced at ₹${product.price}.`;
+            break;
+          case "size":
+            responseText = `The available sizes for ${product.name} are: ${product.sizes.join(", ")}.`;
+            break;
+          case "stock":
+            responseText = `The ${product.name} is currently in stock! We have it available in various sizes.`;
+            break;
+          case "description":
+            responseText = `${product.description}`;
+            break;
+          case "reviews":
+            const reviews = await Review.find({ productId }).limit(3);
+            if (reviews.length > 0) {
+              const avgRating = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
+              responseText = `Customers love this! It has an average rating of ${avgRating.toFixed(1)}/5 stars. Latest review: "${reviews[0].text}"`;
+            } else {
+              responseText = `We don't have any reviews for ${product.name} yet, but it's a popular choice!`;
+            }
+            break;
+        }
+
+        if (responseText) {
+          // Upsert to cache to ensure accuracy
+          await ChatQuery.findOneAndUpdate(
+            { query: normalizedQuery, contextType, productName },
+            { response: responseText, hits: 1, lastAccessed: Date.now() },
+            { upsert: true, new: true }
+          );
+          return res.json({ success: true, response: responseText });
+        }
+      }
+    }
+
+    // 2. Check Cache (For General or Unclassified queries)
     const cachedQuery = await ChatQuery.findOne({
       query: normalizedQuery,
       contextType: contextType,
@@ -668,16 +726,13 @@ export const chatWithAI = async (req, res) => {
         "[CACHE HIT] Returning cached response for:",
         normalizedQuery,
       );
-
-      // Async update hits and lastAccessed
       cachedQuery.hits += 1;
       cachedQuery.lastAccessed = Date.now();
       await cachedQuery.save();
-
       return res.json({ success: true, response: cachedQuery.response });
     }
 
-    console.log("[CACHE MISS] Querying Gemini...");
+    console.log("[CACHE MISS / NO DB MATCH] Querying Gemini...");
 
     if (!GEMINI_API_KEY) {
       console.error("[V16] GEMINI_API_KEY is missing in chatWithAI");

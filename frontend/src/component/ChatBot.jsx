@@ -45,12 +45,13 @@ const ChatBot = () => {
     if (isOpen) scrollToBottom();
   }, [messages, isOpen]);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
+  const handleSend = async (overrideText = null) => {
+    const messageText = (overrideText || input).trim();
+    if (!messageText) return;
 
-    const userMessage = { role: "user", text: input };
+    const userMessage = { role: "user", text: messageText };
     setMessages((prev) => [...prev, userMessage]);
-    setInput("");
+    if (!overrideText) setInput("");
     setIsLoading(true);
 
     try {
@@ -60,7 +61,7 @@ const ChatBot = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            message: input,
+            message: messageText,
             productContext: mode === "product" ? productContext : null,
           }),
         },
@@ -71,11 +72,14 @@ const ChatBot = () => {
       if (data.success) {
         setMessages((prev) => [...prev, { role: "ai", text: data.response }]);
       } else {
+        const fallbackMsg = data.message?.includes("high demand") || data.message?.includes("503")
+          ? "I'm currently handling many requests, please try again later."
+          : "Sorry, I'm having trouble connecting right now.";
         setMessages((prev) => [
           ...prev,
           {
             role: "ai",
-            text: "Sorry, I'm having trouble connecting right now.",
+            text: fallbackMsg,
           },
         ]);
       }
@@ -167,6 +171,24 @@ const ChatBot = () => {
             <div ref={messagesEndRef} />
           </div>
 
+          {/* Quick Replies */}
+          {mode === "product" && messages.length > 0 && messages[messages.length - 1].role === "ai" && (
+            <div className="px-3 pb-2 flex flex-wrap gap-2 animate-fade-in">
+              {["Price", "Sizes", "Details", "Reviews"].map((label) => (
+                <button
+                  key={label}
+                  onClick={() => {
+                    setInput(label);
+                    handleSend(label);
+                  }}
+                  className="text-xs bg-gray-50 border border-gray-200 hover:border-primary hover:text-primary px-3 py-1.5 rounded-full transition-all"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Input */}
           <div className="p-3 bg-white border-t border-gray-100 flex gap-2 shrink-0">
             <input
@@ -178,7 +200,7 @@ const ChatBot = () => {
               onKeyDown={handleKeyPress}
             />
             <button
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={isLoading || !input.trim()}
               className="bg-primary text-white p-2.5 rounded-xl hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md active:scale-95"
             >
