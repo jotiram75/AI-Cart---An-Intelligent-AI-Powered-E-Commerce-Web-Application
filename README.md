@@ -409,7 +409,7 @@ If you want to recreate/extend the AI modules from scratch, follow this pattern 
    cd backend/ai_service
    python main.py
    ```
-   4.3. **Start Frontend**
+4. **Start Frontend**
    ```bash
    cd frontend
    npm run dev
