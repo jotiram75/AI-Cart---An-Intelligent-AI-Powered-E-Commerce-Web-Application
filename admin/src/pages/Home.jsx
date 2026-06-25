@@ -11,6 +11,7 @@ import { IoGridOutline, IoReceiptOutline, IoTrendingUpOutline } from "react-icon
 function Home() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [totalOrders, setTotalOrders] = useState(0);
+  const [revenue, setRevenue] = useState(0);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const { serverUrl } = useContext(authDataContext);
@@ -29,17 +30,47 @@ function Home() {
         {},
         { headers: { token } }
       );
-      setTotalOrders(orders.data.length || 0);
+      const ordersData = orders.data || [];
+      
+      // Filter orders to only count this vendor's active/placed orders
+      const vendorOrdersList = ordersData.filter(order => 
+        order.items && order.items.some(item => (item.vendorId || item.VendorId || item.vendorID) === adminData?._id)
+      );
+      setTotalOrders(vendorOrdersList.length);
+
+      let calculatedRevenue = 0;
+      if (adminData && adminData._id) {
+        ordersData.forEach(order => {
+          // Count paid orders, or COD orders (except cancelled ones)
+          const isPaidOrCOD = order.payment || order.paymentMethod === 'COD';
+          const isNotCancelled = order.status !== 'Cancelled';
+          
+          if (isPaidOrCOD && isNotCancelled) {
+            if (order.items && Array.isArray(order.items)) {
+              order.items.forEach(item => {
+                const itemVendorId = item.vendorId || item.VendorId || item.vendorID;
+                if (itemVendorId === adminData._id) {
+                  calculatedRevenue += (item.price || 0) * (item.quantity || 0);
+                }
+              });
+            }
+          }
+        });
+      }
+      console.log("[Revenue Debug] Logged-in Vendor ID:", adminData?._id);
+      console.log("[Revenue Debug] Matching Vendor Orders Count:", vendorOrdersList.length);
+      console.log("[Revenue Debug] Calculated Revenue sum:", calculatedRevenue);
+      setRevenue(calculatedRevenue);
     } catch (err) {
       console.error("Failed to fetch counts", err);
     }
   };
 
   useEffect(() => {
-    if (token) {
+    if (token && adminData) {
         fetchCounts();
     }
-  }, [token]);
+  }, [token, adminData]);
 
   const stats = [
     {
@@ -61,7 +92,7 @@ function Home() {
     {
       icon: IoTrendingUpOutline,
       label: 'Revenue',
-      value: '₹' + (totalOrders * 1500).toLocaleString(),
+      value: '₹' + revenue.toLocaleString(),
       color: 'bg-purple-500',
       bgColor: 'bg-purple-50',
       textColor: 'text-purple-600'

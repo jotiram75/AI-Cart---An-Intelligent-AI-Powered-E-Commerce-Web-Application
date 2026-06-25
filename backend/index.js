@@ -11,6 +11,7 @@ import orderRoutes from "./routes/orderRoutes.js";
 import vendorRoutes from "./routes/vendorRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
 
 let port = process.env.PORT || 6000;
 
@@ -78,6 +79,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
+app.use("/api/contact", contactRoutes);
 
 // GLOBAL ERROR HANDLER - Must explicitly handle CORS headers for browser errors
 app.use((err, req, res, next) => {

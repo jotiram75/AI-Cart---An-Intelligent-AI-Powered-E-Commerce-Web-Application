@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   IoMailOutline,
   IoCallOutline,
@@ -6,8 +6,13 @@ import {
 } from "react-icons/io5";
 import Title from "../component/Title";
 import Footer from "../component/Footer";
+import { authDataContext } from "../context/AuthContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 function Contact() {
+  const { serverUrl } = useContext(authDataContext);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -15,10 +20,28 @@ function Contact() {
     message: "",
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Handle form submission
+    setLoading(true);
+    try {
+      const response = await axios.post(`${serverUrl}/api/contact/submit`, formData);
+      if (response.data.success) {
+        toast.success(response.data.message || "Message sent successfully!");
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        toast.error(response.data.message || "Failed to send message.");
+      }
+    } catch (error) {
+      console.error("Error submitting contact form:", error);
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -212,9 +235,10 @@ function Contact() {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full bg-primary text-white py-4 rounded-lg font-bold hover:bg-gray-900 transition-colors shadow-lg uppercase tracking-wide text-sm"
+                disabled={loading}
+                className="w-full bg-primary text-white py-4 rounded-lg font-bold hover:bg-gray-900 transition-colors shadow-lg uppercase tracking-wide text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send Message
+                {loading ? "Sending..." : "Send Message"}
               </button>
             </form>
           </div>
