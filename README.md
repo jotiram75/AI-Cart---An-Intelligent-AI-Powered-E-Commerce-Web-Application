@@ -422,3 +422,158 @@ This project is optimized for deployment on Vercel.
 1. **Backend**: Deploy the `backend` directory and set environment variables.
 2. **Frontend**: Deploy the `frontend` directory and set `VITE_SERVER_URL` to the deployed backend URL.
 3. **Admin**: Deploy the `admin` directory and set `VITE_SERVER_URL` to the deployed backend URL.
+
+## System Design
+
+AICart is structured as a modular MERN stack application augmented by a dedicated Python FastAPI machine learning microservice. Below is the comprehensive architectural analysis.
+
+### 1. High-Level Design (HLD)
+
+#### Component Architecture Overview
+The system follows a multi-tier microservices-enabled layout. The Express.js backend handles core commerce queries and serves as an API orchestrator, directing compute-heavy computer vision and generative AI workloads to a Python microservice, and text/reasoning requests to the Google Gemini and Hugging Face APIs.
+
+```mermaid
+flowchart TD
+    subgraph Clients["Client Layer"]
+        FE["Customer Storefront (React/Vite)"]
+        ADM["Admin Dashboard (React/Vite)"]
+    end
+
+    subgraph BackendGateway["Backend Layer (NodeJS/Express)"]
+        B_API["API Gateway & Controller Router"]
+        B_SERV["AI Services (Size Rec, Review Analysis, Hashed Search)"]
+    end
+
+    subgraph ML_Microservice["Python AI Microservice"]
+        PY_API["FastAPI App (port 8001)"]
+        RESNET["ResNet50 Feature Extractor"]
+        FAISS["FAISS IndexFlatIP (Vector DB)"]
+    end
+
+    subgraph DataStore["Data & Asset Layer"]
+        DB[("MongoDB Atlas")]
+        CLOUD["Cloudinary Storage"]
+    end
+
+    subgraph Ext_API["External APIs"]
+        GEMINI["Google Gemini API (Chat, Captioning, VTO Analytics)"]
+        REPLICATE["Replicate API (VTO IDM-VTON Model)"]
+        HF["HuggingFace Inference API (Sentiment/Summarization)"]
+        PAY["Razorpay Payment Gateway"]
+    end
+
+    %% Customer Storefront interactions
+    FE -->|HTTP Requests / WebSockets| B_API
+    FE -->|Direct API Call| PAY
+    
+    %% Admin interactions
+    ADM -->|HTTP Requests| B_API
+    
+    %% Backend Gateway interactions
+    B_API --> B_SERV
+    B_API -->|Read/Write Operations| DB
+    B_API -->|Upload Media| CLOUD
+    B_API -->|HTTP Proxy requests| PY_API
+    
+    %% External integrations
+    B_API -->|Chatbot / Vision Prompts| GEMINI
+    B_API -->|IDM-VTON Try-On fallback| REPLICATE
+    B_API -->|Sentiment Analysis / Summarization| HF
+    
+    %% Python microservice interactions
+    PY_API --> RESNET
+    PY_API --> FAISS
+    PY_API -->|Gradio Client| HF
+```
+
+#### Key Architecture Flows
+- **Core Commerce**: Standard customer shopping actions (product browsing, cart, order processing) run entirely on React <-> Express.js <-> MongoDB Atlas. Razorpay processes payments directly.
+- **AI Virtual Try-On (VTO)**:
+  1. Frontend captures and sends the user's photo and the selected garment image to the Express backend.
+  2. The Express backend uploads assets to Cloudinary and requests Gemini to analyze body shape and garment compatibility (generating custom styling advice).
+  3. The request is forwarded to the FastAPI service (`/try-outfit`).
+  4. FastAPI calls the HuggingFace `IDM-VTON` space using the Gradio client.
+  5. Fallback engines (Gemini Image Generation, Replicate API, and Google Imagen) execute sequentially in the backend if the primary FastAPI service fails.
+- **AI Visual Search (Dual-Mode)**:
+  - *Mode 1 (Local Hashed)*: Relies on Node.js. It captions images using Gemini, hashes the text into a 512-dimension vector, and performs a native cosine similarity check against database-stored product vectors.
+  - *Mode 2 (Deep Feature)*: Forwards the image to the FastAPI service (`/search`). FastAPI extracts deep visual feature vectors using ResNet50 and queries a FAISS index, returning product matches.
+
+---
+
+### 2. Low-Level Design (LLD)
+
+#### Directory Structure & Class Responsibility
+- **Backend (`backend/`)**:
+  - `config/`: Configuration entry-points. [db.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/config/db.js) configures MongoDB connection pools; [cloudinary.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/config/cloudinary.js) handles Cloudinary storage wrappers; [token.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/config/token.js) handles JWT generation.
+  - `middleware/`: Policy enforcement hooks. [isAuth.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/middleware/isAuth.js), [adminAuth.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/middleware/adminAuth.js), [vendorAuth.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/middleware/vendorAuth.js), and [superAdminAuth.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/middleware/superAdminAuth.js) handle role-based token checking. [multer.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/middleware/multer.js) handles multi-part form parsing.
+  - `model/`: Mongoose Schemas. [productModel.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/model/productModel.js) maps products, catalog values, and visual embeddings; [reviewModel.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/model/reviewModel.js) keeps star ratings and sentiment analysis results; [TryOnHistory.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/model/TryOnHistory.js) catalogs historical customer VTO images.
+  - `controller/`: Request execution. [aiController.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/controller/aiController.js) coordinates virtual try-ons, size finder, and Gemini chat fallbacks. [visualSearchController.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/controller/visualSearchController.js) computes local-hashed searches. [reviewController.js](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/controller/reviewController.js) invokes sentiment classification on review submission.
+  - `services/`: Native computational engines. Implements math and processing algorithms (detailed below).
+- **Python ML Service (`backend/ai_service/`)**:
+  - [main.py](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/ai_service/main.py): Sets up FastAPI, routes incoming query photos to the feature extractor, and searches the FAISS index database.
+  - [model.py](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/ai_service/model.py): Wraps PyTorch pre-trained ResNet50 (FC layer deleted) for generating deep L2-normalized 2048-dim vectors.
+  - [vector_db.py](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/backend/ai_service/vector_db.py): Indexes product vectors in a Flat Inner Product configuration (`faiss.IndexFlatIP`) and writes changes to the disk file `products.index`.
+- **Frontend & Admin (`frontend/src/` & `admin/src/`)**:
+  - State management uses React Context API (ShopContext, UserContext, AuthContext, ChatContext).
+  - Web Speech API integration in [Ai.jsx](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/frontend/src/component/Ai.jsx) routes voice command transcripts matching regular expression keywords.
+  - Visual displays like [ReviewInsights.jsx](file:///c:/Users/shind/Downloads/Personal_Repo_Project/AICart/frontend/src/component/ReviewInsights.jsx) chart ratings, sentiment percentages, and fake reviews detection logs.
+
+---
+
+### 3. System Algorithms & Formulations
+
+#### A. AI Size Finder (KNN Classifier)
+Matches user characteristics against catalog sizing charts using Euclidean distance feature classification.
+- **Normalization**: User features are scaled into comparable unit dimensions:
+  $$X = \left[ \frac{\text{heightCm}}{200}, \frac{\text{weightKg}}{150}, \frac{\text{bodyTypeIndex}}{3} \right]$$
+  *(where thin = 1, average = 2, athletic = 3, etc.)*
+- **Distance Calculation**: The distance $d$ between the user $X$ and a catalog sample $X_i$ is computed via the Euclidean metric:
+  $$d(X, X_i) = \sqrt{(X_{\text{height}} - X_{i,\text{height}})^2 + (X_{\text{weight}} - X_{i,\text{weight}})^2 + (X_{\text{body}} - X_{i,\text{body}})^2}$$
+- **Weighted Voting**: Selects $K$ nearest neighbors (default $K=5$). Each neighbor $i$ casts a vote weighted by the inverse of its distance:
+  $$\text{Weight}(i) = \frac{1}{d(X, X_i) + \epsilon}$$
+  *($\epsilon = 10^{-5}$ is added to prevent division by zero)*
+- **Fit Adjustments**: The predicted size is modified based on preference:
+  - `slim`: Shift predicted size 1 step down (e.g., L $\rightarrow$ M).
+  - `loose`: Shift predicted size 1 step up (e.g., L $\rightarrow$ XL).
+  - `regular`: No shift.
+- **Availability Fallback**: If the preferred size is missing, it falls back to the nearest available alpha size.
+
+#### B. Local Hashed Visual Search (`local-hash-v1`)
+Uses caption generation and FNV-1a hashing to build zero-dependency text embeddings for product images.
+- **Tokenization**: Captions are converted to lowercase and split into alphanumeric word tokens.
+- **FNV-1a 32-bit Hashing**: Tokens are mapped to numerical keys:
+  $$\text{hash} = \text{0x811C9DC5}$$
+  $$\text{hash} = (\text{hash} \oplus \text{charCode}) \times \text{0x01000193} \pmod{2^{32}}$$
+- **Sign-Hashing**: Maps a token $t$ to index $idx$ of a 512-dimension vector $V$:
+  $$idx = H(t) \pmod{512}$$
+  $$\text{sign} = \begin{cases} +1 & \text{if } H(t) \text{ is even} \\ -1 & \text{if } H(t) \text{ is odd} \end{cases}$$
+  $$V[idx] = V[idx] + \text{sign}$$
+- **Bigram Features**: Incorporates context by hashing adjacent token combinations $t_j \text{ and } t_{j+1}$ with a $0.5$ weight multiplier:
+  $$idx_b = H(t_j\text{"\_"}t_{j+1}) \pmod{512}$$
+  $$\text{sign}_b = \begin{cases} +0.5 & \text{if } H(t_j\text{"\_"}t_{j+1}) \text{ is even} \\ -0.5 & \text{if } H(t_j\text{"\_"}t_{j+1}) \text{ is odd} \end{cases}$$
+  $$V[idx_b] = V[idx_b] + \text{sign}_b$$
+- **L2 Normalization**: Ensures distance metric consistency:
+  $$V_{\text{normalized}} = \frac{V}{\sqrt{\sum_{k=1}^{512} V[k]^2}}$$
+- **Cosine Similarity**: Resolves to the dot product since vectors are L2-normalized:
+  $$\text{Similarity}(A, B) = \sum_{k=1}^{512} A[k] \times B[k]$$
+
+#### C. Deep Visual Search (FastAPI ResNet50 + FAISS)
+Combines deep learning and indexing libraries for image search.
+- **ResNet50 Extraction**: Passes input images through PyTorch torchvision ResNet50. Removing the final Fully Connected classification layer yields a raw 2048-dimensional feature vector.
+- **L2 Normalization**: Normalizes vectors to length 1:
+  $$V_{\text{norm}} = \frac{V}{\|V\|_2}$$
+- **FAISS Inner Product Flat Indexing**: Maps features to product identifiers using inner product comparisons on normalized vectors (equivalent to Cosine Similarity), ensuring logarithmic search speeds.
+
+#### D. AI Review Analytics & Fraud Detection Heuristics
+Analyzes reviews for authenticity and sentiment splits.
+- **Clause Splitting**: Breaks paragraphs into clause fragments based on punctuation (`.`, `,`, `!`, `?`, `;`) and coordinating contrast markers (`but`, `however`, `although`, `yet`, `except`, `though`).
+- **Sentiment Inference**: Computes sentiment for each clause. If HuggingFace fails, a local lexicon-matching heuristic sums sentiment weights of matched tokens:
+  $$\text{Score} = \sum_{w \in \text{clause}} \text{LexiconWeight}(w)$$
+  Positive clauses are classified as *Pros*, while negative clauses are classified as *Cons*.
+- **Fraud Indicators**:
+  - *Excessive Punctuation*: Flags reviews where uppercase characters or exclamation marks exceed $20\%$ of total characters.
+  - *Lexical Repetition*: Calculates vocabulary variety (unique words relative to total words). Low diversity flags repetitive review spam.
+  - *Jaccard Similarity Comparison*: Compares new review token sets $R_A$ against historic product reviews $R_B$ to detect duplicated feedback:
+    $$J(R_A, R_B) = \frac{|R_A \cap R_B|}{|R_A \cup R_B|}$$
+    A Jaccard similarity score $> 0.75$ triggers suspicion.
+
