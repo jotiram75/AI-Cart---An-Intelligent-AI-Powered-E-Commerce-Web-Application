@@ -843,6 +843,71 @@ export const chatWithAI = async (req, res) => {
   }
 };
 
+export const handleVoiceCommand = async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message) {
+      return res.status(400).json({ success: false, message: "Message is required" });
+    }
+
+    if (!GEMINI_API_KEY) {
+      return res.status(503).json({
+        success: false,
+        message: "AI Service Unavailable",
+      });
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const systemInstruction = `
+You are the intelligence behind a voice assistant for 'AICart', an e-commerce store.
+Based on the user's transcript, decide the best action to take.
+Output ONLY a raw JSON object with this exact structure (no markdown, no backticks):
+{
+    "action": "navigate" | "search" | "speak" | "stop",
+    "path": "/url" (only if action is navigate. Valid paths: "/", "/collection", "/about", "/cart", "/contact", "/order", "/login", "/returns"),
+    "query": "search term" (only if action is search),
+    "message": "The spoken response to the user" (required for all actions. e.g., "Opening your cart", "Searching for red dresses", or the answer to their question)
+}
+
+Rules:
+- If they ask to go to a page (e.g. "home", "my cart", "contact"), use "navigate".
+- If they ask to find or buy products (e.g. "show me shirts", "I want sneakers"), use "search" and extract the search query.
+- If they say "stop", "close", "exit", use "stop".
+- For general questions (e.g. "what is your return policy?", "how are you?"), use "speak" and answer it concisely.
+`;
+
+    const chat = model.startChat({
+      history: [
+        { role: "user", parts: [{ text: systemInstruction }] },
+        { role: "model", parts: [{ text: "Understood. I will only output the requested JSON." }] }
+      ],
+    });
+
+    const result = await chat.sendMessage(message);
+    let responseText = result.response.text();
+    
+    // Safely extract JSON in case Gemini adds conversational text
+    let actionResult;
+    try {
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        actionResult = JSON.parse(jsonMatch[0]);
+      } else {
+        // Fallback if no JSON found
+        actionResult = { action: "speak", message: responseText };
+      }
+    } catch (e) {
+      console.error("Failed to parse Gemini JSON:", responseText);
+      actionResult = { action: "speak", message: "I'm sorry, I didn't understand that." };
+    }
+
+    res.json({ success: true, result: actionResult });
+  } catch (error) {
+    console.error("Voice Command Error:", error);
+    res.status(500).json({ success: false, message: "AI Error: " + error.message });
+  }
+};
+
 export const getSuggestedQuestions = async (req, res) => {
   try {
     // If no API key, return static defaults

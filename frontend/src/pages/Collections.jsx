@@ -33,8 +33,11 @@ function Collections() {
     let productsCopy = products.slice();
 
     if (showSearch && search) {
+      const searchLower = search.toLowerCase();
       productsCopy = productsCopy.filter((item) =>
-        item.name.toLowerCase().includes(search.toLowerCase()),
+        (item.name && item.name.toLowerCase().includes(searchLower)) ||
+        (item.category && item.category.toLowerCase().includes(searchLower)) ||
+        (item.subCategory && item.subCategory.toLowerCase().includes(searchLower))
       );
     }
 

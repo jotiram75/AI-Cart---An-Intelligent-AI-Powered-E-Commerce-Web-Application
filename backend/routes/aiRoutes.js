@@ -4,6 +4,7 @@ import {
   chatWithAI,
   getSuggestedQuestions,
   checkLimit,
+  handleVoiceCommand,
 } from "../controller/aiController.js";
 import multer from "multer";
 import superAdminAuth from "../middleware/superAdminAuth.js";
@@ -29,6 +30,7 @@ const maybeSuperAdminAuth =
 
 aiRouter.post("/try-on", tryOutfit);
 aiRouter.post("/chat", chatWithAI);
+aiRouter.post("/voice-command", handleVoiceCommand);
 aiRouter.get("/check-limit", checkLimit);
 aiRouter.get("/suggest-questions", getSuggestedQuestions);
 
@@ -37,6 +39,12 @@ aiRouter.post(
   "/visual-search",
   upload.single("image"),
   visualSearch,
+);
+
+aiRouter.post(
+  "/visual-search-local",
+  uploadMemory.single("image"),
+  visualSearchByImage,
 );
 
 aiRouter.post(

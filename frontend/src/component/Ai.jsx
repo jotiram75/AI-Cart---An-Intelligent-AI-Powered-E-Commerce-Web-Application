@@ -33,11 +33,40 @@ function Ai() {
     fetchQuestions();
   }, [serverUrl]);
 
+  const isSpeakingRef = useRef(false);
+
   const speak = (message) => {
     // Cancel any ongoing speech to avoid overlap
     window.speechSynthesis.cancel();
     let utter = new SpeechSynthesisUtterance(message);
     utter.rate = 1.0;
+    
+    // Try to find an attractive/high-quality female voice
+    const voices = window.speechSynthesis.getVoices();
+    const femaleVoice = 
+      voices.find(v => v.name === 'Google UK English Female') ||
+      voices.find(v => v.name === 'Google US English Female') ||
+      voices.find(v => v.name.includes('Samantha')) ||
+      voices.find(v => v.name.includes('Zira')) ||
+      voices.find(v => v.name.toLowerCase().includes('female')) ||
+      voices.find(v => v.name.toLowerCase().includes('victoria'));
+    
+    if (femaleVoice) {
+        utter.voice = femaleVoice;
+    }
+    
+    utter.onstart = () => {
+        isSpeakingRef.current = true;
+    };
+    
+    utter.onend = () => {
+        isSpeakingRef.current = false;
+    };
+    
+    utter.onerror = () => {
+        isSpeakingRef.current = false;
+    };
+    
     window.speechSynthesis.speak(utter);
   };
 
@@ -86,6 +115,11 @@ function Ai() {
     if (!recognition) return;
 
     recognition.onresult = (event) => {
+        if (isSpeakingRef.current) {
+            console.log("Ignored transcript while speaking to prevent loop.");
+            return;
+        }
+
         const lastResultIndex = event.results.length - 1;
         const transcript = event.results[lastResultIndex][0].transcript.trim().toLowerCase();
         
@@ -97,10 +131,11 @@ function Ai() {
 
 
   const handleCommand = async (transcript) => {
-    // 1. Defined Navigation Commands (Priority)
+    // 1. Defined Navigation Commands (Priority to minimize API calls)
     const navCommands = [
         { keywords: ["home"], path: "/", message: "Opening home page" },
         { keywords: ["collection", "product", "shop", "store", "new arrival"], path: "/collection", message: "Opening collection" },
+        { keywords: ["visual search", "image search", "search by image"], path: "/visual-search", message: "Opening visual search" },
         { keywords: ["about"], path: "/about", message: "Opening about page" },
         { keywords: ["cart", "basket"], path: "/cart", message: "Opening cart" },
         { keywords: ["contact", "support"], path: "/contact", message: "Opening contact page" },
@@ -117,63 +152,42 @@ function Ai() {
       }
     }
 
-    // 2. Stop/Close
+    // 2. Stop/Close Command
     if (transcript.includes("close") || transcript.includes("stop") || transcript.includes("exit")) {
         speak("Goodbye!");
         toggleAI(); 
         return;
     }
 
-    // 3. Search Logic
-    const searchKeywords = ["search", "find", "show me", "looking for", "buy"];
-    // Remove "show me", "search for" etc to get the raw query
-    let cleanTranscript = transcript;
-    searchKeywords.forEach(k => {
-        cleanTranscript = cleanTranscript.replace(k, "").trim();
-    });
-
-    const productKeywords = [
-      "shirt", "tshirt", "t-shirt", "pant", "pants", "jeans", "jacket",
-      "men", "women", "kid", "kids", "girl", "boy", "kurta", "saree", "dress",
-      "shoes", "top", "fashion", "sneaker", "heel", "sandal"
-    ];
-    
-    // Check if the cleaned transcript contains any product keywords OR if explicitly asked to search
-    const isExplicitSearch = searchKeywords.some(k => transcript.startsWith(k));
-    const hasProductKeyword = productKeywords.some(k => cleanTranscript.includes(k));
-
-    if (isExplicitSearch || hasProductKeyword) {
-        if(cleanTranscript.length < 2) {
-             speak("What are you looking for?");
-             setShowSearch(true);
-             navigate("/collection");
-             setIsSearchMode(true);
-             return;
-        }
-        
-        speak("Searching for " + cleanTranscript);
-        setSearch(cleanTranscript);
-        setShowSearch(true);
-        navigate("/collection"); 
-        setIsSearchMode(false);
-        return;
-    }
-
-    // 4. Fallback: AI Chat for General Queries
-    // If it's not a nav command and not a clear product search, ask the AI
+    // 3. Fallback to Gemini AI for Dynamic intent handling
     try {
-        const { data } = await axios.post(`${serverUrl}/api/ai/chat`, {
+        const { data } = await axios.post(`${serverUrl}/api/ai/voice-command`, {
             message: transcript
         });
         
-        if (data.success && data.response) {
-            speak(data.response);
+        if (data.success && data.result) {
+            const { action, message, path, query } = data.result;
+            
+            if (message) {
+                speak(message);
+            }
+            
+            if (action === "navigate" && path) {
+                navigate(path);
+            } else if (action === "search" && query) {
+                setSearch(query);
+                setShowSearch(true);
+                navigate("/collection"); 
+                setIsSearchMode(false);
+            } else if (action === "stop") {
+                toggleAI(); 
+            }
         } else {
              speak("I am not sure about that. Try asking for products or say 'Home'.");
         }
     } catch (error) {
-        console.error("AI Chat Error:", error);
-         speak("I'm having trouble connecting. Please try again.");
+        console.error("AI Voice Command Error:", error);
+        speak("I'm having trouble connecting. Please try again.");
     }
   };
 
